@@ -38,7 +38,7 @@ void Collision::setMode(CollisionMode mType) {
     // Reset collider position and mtv
     for (Collider& collider : m_colliders) {
         collider.pos = collider.initPos;
-        m_mtvs[collider.id] = glm::vec3(0);
+        m_mtvs[collider.id] = glm::vec3(0.f);
     }
 
     // Reset controlling collider
@@ -53,12 +53,14 @@ void Collision::addCylinderCollider(glm::vec3 pos, float radius, float height) {
     CylinderCollider c = CylinderCollider(index++, pos, radius, height);
     m_cylinders.push_back(c);
     m_colliders.push_back(c);
+    m_mtvs.push_back(glm::vec3(0.f));
 }
 
 void Collision::addEllipsoidCollider(glm::vec3 pos, glm::vec3 radii) {
     EllipsoidCollider e = EllipsoidCollider(index++, pos, radii);
     m_ellipsoids.push_back(e);
     m_colliders.push_back(e);
+    m_mtvs.push_back(glm::vec3(0.f));
 }
 
 void Collision::addGJKCollider(glm::vec3 pos, const std::string& filepath) {
