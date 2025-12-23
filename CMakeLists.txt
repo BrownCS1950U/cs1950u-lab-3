@@ -25,13 +25,6 @@ set(DEP_IMGUI_FREETYPE ON CACHE BOOL "ImGui FreeType support")
 # Add dependencies
 add_subdirectory(dependencies)
 
-#GLFW settings
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
-set(GLFW_INSTALL OFF CACHE BOOL "")
-
 # Set up executable
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 add_subdirectory(${SOURCE_DIR})
