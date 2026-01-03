@@ -10,17 +10,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # Enable the required dependencies
-set(DEP_GLFW ON CACHE BOOL "Build GLFW")
-set(DEP_GLM ON CACHE BOOL "Build GLM")
-set(DEP_GLEW ON CACHE BOOL "Build GLEW")
-set(DEP_FREETYPE ON CACHE BOOL "Build FreeType")
-set(DEP_STB ON CACHE BOOL "Include STB headers")
-set(DEP_IMGUI ON CACHE BOOL "Build Dear ImGui")
+set(DEP_GLFW ON "Build GLFW")
+set(DEP_GLM ON "Build GLM")
+set(DEP_GLEW ON "Build GLEW")
+set(DEP_FREETYPE ON "Build FreeType")
+set(DEP_STB ON "Include STB headers")
+set(DEP_IMGUI ON "Build Dear ImGui")
 
 # ImGui options
-set(DEP_IMGUI_BACKEND_GLFW ON CACHE BOOL "ImGui GLFW backend")
-set(DEP_IMGUI_BACKEND_OPENGL3 ON CACHE BOOL "ImGui OpenGL3 backend")
-set(DEP_IMGUI_FREETYPE ON CACHE BOOL "ImGui FreeType support")
+set(DEP_IMGUI_BACKEND_GLFW ON "ImGui GLFW backend")
+set(DEP_IMGUI_BACKEND_OPENGL3 ON "ImGui OpenGL3 backend")
+set(DEP_IMGUI_FREETYPE ON "ImGui FreeType support")
 
 # Add dependencies
 add_subdirectory(dependencies)
@@ -28,6 +28,9 @@ add_subdirectory(dependencies)
 # Set up executable
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 add_subdirectory(${SOURCE_DIR})
+
+message("GLEW_SOURCE_DIR: " ${GLEW_SOURCE_DIR})
+message("GLFW_SOURCE_DIR: " ${GLFW_SOURCE_DIR})
 
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
