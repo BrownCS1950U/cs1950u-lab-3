@@ -76,7 +76,7 @@ void Window::display() {
     glViewport(0, 0, width_, height_);
     glDisable(GL_SCISSOR_TEST);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Alpha = 1.0 for opaque background
+    glClearColor(0.8f, 0.8f, 0.8f, 1.0f); // Alpha = 1.0 for opaque background
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Reset blend state for 3D rendering

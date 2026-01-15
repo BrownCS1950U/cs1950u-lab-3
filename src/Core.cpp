@@ -164,10 +164,92 @@ void draw3DArrow(glm::vec3 start, glm::vec3 end, float shaft_radius, float tip_r
     }
 }
 
+void Core::drawDebugGrid() {
+    if (!m_show_grid) return;
+
+    // Colors for axes (standard RGB convention)
+    const glm::vec3 X_AXIS_POS_COLOR(1.0f, 0.0f, 0.0f);  // Red
+    const glm::vec3 X_AXIS_NEG_COLOR(0.5f, 0.0f, 0.0f);  // Dark Red
+    const glm::vec3 Y_AXIS_POS_COLOR(0.0f, 1.0f, 0.0f);  // Green
+    const glm::vec3 Y_AXIS_NEG_COLOR(0.0f, 0.5f, 0.0f);  // Dark Green
+    const glm::vec3 Z_AXIS_POS_COLOR(0.0f, 0.0f, 1.0f);  // Blue
+    const glm::vec3 Z_AXIS_NEG_COLOR(0.0f, 0.0f, 0.5f);  // Dark Blue
+    const glm::vec3 GRID_COLOR(0.7);        // Gray
+
+    const float AXIS_LINE_WIDTH = 3.0f;
+    const float GRID_LINE_WIDTH = 1.0f;
+
+    // Draw XZ plane grid
+    for (float i = -m_grid_size; i <= m_grid_size; i += m_cell_size) {
+        // Lines parallel to X axis
+        if (i==0.0f) continue; // Skip axis line, drawn later
+        gl::Graphics::drawLine3D(
+            glm::vec3(-m_grid_size, 0.0f, i),
+            glm::vec3(m_grid_size, 0.0f, i),
+            GRID_COLOR,
+            GRID_LINE_WIDTH
+        );
+
+        // Lines parallel to Z axis
+        gl::Graphics::drawLine3D(
+            glm::vec3(i, 0.0f, -m_grid_size),
+            glm::vec3(i, 0.0f, m_grid_size),
+            GRID_COLOR,
+            GRID_LINE_WIDTH
+        );
+    }
+
+    // Draw thick axis lines on top
+    // X-axis (Red)
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(m_grid_size, 0.0f, 0.0f),
+        X_AXIS_POS_COLOR,
+        AXIS_LINE_WIDTH
+    );
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(-m_grid_size, 0.0f, 0.0f),
+        X_AXIS_NEG_COLOR,
+        AXIS_LINE_WIDTH
+    );
+
+    // Y-axis (Green)
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, m_grid_size, 0.0f),
+        Y_AXIS_POS_COLOR,
+        AXIS_LINE_WIDTH
+    );
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -m_grid_size, 0.0f),
+        Y_AXIS_NEG_COLOR,
+        AXIS_LINE_WIDTH
+    );
+
+    // Z-axis (Blue)
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, m_grid_size),
+        Z_AXIS_POS_COLOR,
+        AXIS_LINE_WIDTH
+    );
+    gl::Graphics::drawLine3D(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -m_grid_size),
+        Z_AXIS_NEG_COLOR,
+        AXIS_LINE_WIDTH
+    );
+}
+
 void Core::draw() {
     gl::Graphics::usePhongShader();
     gl::Graphics::setCameraUniforms(m_camera.get());
     gl::Graphics::setLight(*m_light);
+
+    // Draw debug grid and axes
+    drawDebugGrid();
 
     for (size_t i = 0; i < m_shapes.size(); i++) {
         auto& obj = m_shapes[i];

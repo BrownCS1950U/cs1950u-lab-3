@@ -18,7 +18,7 @@ namespace gl {
 
     void Graphics::initialize() {
         initializePhongShader();
-        setAmbientLight(glm::vec3(0.5));
+        setAmbientLight(glm::vec3(1.f));
     }
 
     void Graphics::tearDown() {
@@ -172,6 +172,55 @@ namespace gl {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(GL_TEXTURE_2D, texture);
         active_shader_->setInt(uniform_name, unit); // sampler2D bound by binding the texture unit to the uniform
+    }
+
+    void Graphics::drawLine3D(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color, float width) {
+        // Create line vertices
+        float vertices[] = {
+            start.x, start.y, start.z,
+            end.x, end.y, end.z
+        };
+
+        // Create and bind VAO/VBO
+        GLuint vao, vbo;
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // Position attribute (location = 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // Set line width
+        glLineWidth(width);
+
+        // Set material to use the color (using emissive-like approach)
+        DrawMaterial lineMaterial;
+        lineMaterial.ambient = color;
+        lineMaterial.diffuse = color;
+        lineMaterial.specular = glm::vec3(0.0f);
+        lineMaterial.shininess = 1.0f;
+        lineMaterial.opacity = 1.0f;
+
+        setMaterialUniforms(lineMaterial);
+
+        // Set identity transform (vertices are already in world space)
+        active_shader_->setMat4("model", glm::mat4(1.0f));
+        active_shader_->setMat3("normal", glm::mat3(1.0f));
+
+        // Draw the line
+        glDrawArrays(GL_LINES, 0, 2);
+
+        // Cleanup
+        glBindVertexArray(0);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+
+        // Reset line width to default
+        glLineWidth(1.0f);
     }
 }
 
