@@ -60,10 +60,20 @@ public:
     int getSelectedObjectIndex() const { return m_selected_object_index; }
     void setSelectedObjectIndex(int index) { m_selected_object_index = index; }
 
+    // Grid control accessors
+    bool& getShowGrid() { return m_show_grid; }
+
 private:
+    void drawDebugGrid();
+
     std::shared_ptr<gl::Camera> m_camera;
     std::shared_ptr<gl::Light> m_light;
     std::vector<Object> m_shapes;
     int m_selected_object_index = 0;
     OrbitCameraControls orbit;
+
+    // Grid settings
+    bool m_show_grid = true;
+    const float m_grid_size = 10.0f;  // Grid extends from -10 to +10
+    const float m_cell_size = 1.0f;   // 1 unit per cell
 };

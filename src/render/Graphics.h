@@ -51,6 +51,9 @@ namespace gl {
         static void drawMesh(const DrawMesh* draw_mesh, const Transform& transform);
         static void drawSkinned(SkinnedMesh* skinned_mesh, const Transform& transform);
 
+        // Debug line drawing
+        static void drawLine3D(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color, float width = 1.0f);
+
         static void addShape(const char* name, const DrawShape& shape);
         static const DrawShape* getShape(const std::string& shape_name);
 

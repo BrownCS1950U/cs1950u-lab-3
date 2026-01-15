@@ -75,6 +75,10 @@ void UI::update() {
     if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
         currentMode = ImGuizmo::LOCAL;
 
+    ImGui::Separator();
+    ImGui::Text("Debug Grid:");
+    ImGui::Checkbox("Show Grid", &m_core->getShowGrid());
+
     ImGui::End();
 
     // ImGuizmo manipulation
