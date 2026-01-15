@@ -1,63 +1,37 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required(VERSION 3.16)
+project(CollisionDebugger) # Enter your project name here
 
-project (viewer)
-
-find_package(OpenGL REQUIRED)
-
-#Tells compiler to use c++ 20
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-# Enable the required dependencies
-set(DEP_GLFW ON "Build GLFW")
-set(DEP_GLM ON "Build GLM")
-set(DEP_GLEW ON "Build GLEW")
-set(DEP_FREETYPE ON "Build FreeType")
-set(DEP_STB ON "Include STB headers")
-set(DEP_IMGUI ON "Build Dear ImGui")
-
-# ImGui options
-set(DEP_IMGUI_BACKEND_GLFW ON "ImGui GLFW backend")
-set(DEP_IMGUI_BACKEND_OPENGL3 ON "ImGui OpenGL3 backend")
-set(DEP_IMGUI_FREETYPE ON "ImGui FreeType support")
-
-# Add dependencies
-add_subdirectory(dependencies)
-
-# Set up executable
-set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
-add_subdirectory(${SOURCE_DIR})
-
-message("GLEW_SOURCE_DIR: " ${GLEW_SOURCE_DIR})
-message("GLFW_SOURCE_DIR: " ${GLFW_SOURCE_DIR})
-
-target_include_directories(
-        ${PROJECT_NAME} PRIVATE
-        ${GLFW_SOURCE_DIR}/include
-        ${GLEW_SOURCE_DIR}/include
-        ${IMGUI_SOURCE_DIR}
-        ${STB_SOURCE_DIR}
-)
-
-# OpenGL (system)
 find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
-# Project dependencies
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
+add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
+
+# ============================================================================
+# External Dependencies Configuration
+# ============================================================================
+# Set which dependencies to enable
+set(DEP_ENABLE_ALL ON)
+
+# Path to shared dependencies directory (in parent folder)
+set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies")
+add_subdirectory(${DEPENDENCIES_DIR} External EXCLUDE_FROM_ALL)
+
+# Add ImGuizmo subdirectory
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuizmo" ImGuizmo)
+
+# Link all dependencies using the unified interface library
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        # glfw  ## GLFW is linked implicitly via imgui
-        glm
-        glew_static
-        stb
-        imgui
+        Dependencies::AllEnabled
+        ImGuizmo::ImGuizmo
 )
 
-if (WIN32)
-    add_compile_definitions(GLEW_STATIC)
-    target_link_libraries(${PROJECT_NAME} opengl32 glu32)
-endif()
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+        <glm/glm.hpp>
+        <glm/ext.hpp>
+)
 
-if (UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} GL)
-endif()
+# Defines PROJECT_ROOT macro for use in source files
+target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_ROOT="${PROJECT_SOURCE_DIR}")
