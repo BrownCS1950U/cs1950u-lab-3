@@ -25,7 +25,22 @@ struct Object {
         material = gl::defaultMaterial;
     }
 
-    MTV mtv;
+    void setColor(const glm::vec3 color) {
+        material.diffuse = color;
+        material.ambient = color;
+        material.specular = color;
+    }
+
+    bool isColliding() {
+        for (const auto& [i, mtv] : mtv_map) {
+            if (mtv.collision) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    std::unordered_map<size_t, MTV> mtv_map;
     Collider* collider = nullptr;
     const gl::DrawShape* shape;
     std::shared_ptr<Transform> transform;
@@ -60,16 +75,28 @@ public:
     int getSelectedObjectIndex() const { return m_selected_object_index; }
     void setSelectedObjectIndex(int index) { m_selected_object_index = index; }
 
+    void selectedObjectGui(int index);
+
     // Grid control accessors
     bool& getShowGrid() { return m_show_grid; }
+    void collisionGui();
+    void addObjectGui();
+    void removeObject(int index);
+    void clearObjects();
+
+    void updateCollisions();
+    void resolveCollision(int index);
+
+
 
 private:
     void drawDebugGrid();
+    void drawSelectionIndicators();
 
     std::shared_ptr<gl::Camera> m_camera;
     std::shared_ptr<gl::Light> m_light;
     std::vector<Object> m_shapes;
-    int m_selected_object_index = 0;
+    int m_selected_object_index = -1;
     OrbitCameraControls orbit;
 
     // Grid settings

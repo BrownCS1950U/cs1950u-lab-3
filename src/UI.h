@@ -10,9 +10,11 @@ public:
 
     void initialize(GLFWwindow* window);
     void update();
-    static bool isUsingGizmo() { return using_gizmo; }
-
+    static bool isUsingGizmo();
+    static glm::vec2 getWindowSize();
 private:
+
+
+    static glm::vec2 window_size;
     Core* m_core;
-    static bool using_gizmo;
 };

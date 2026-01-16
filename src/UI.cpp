@@ -16,7 +16,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-bool UI::using_gizmo = false;
+#include "Debug.h"
+#include "imgui_internal.h"
+
+glm::vec2 UI::window_size = glm::vec2(400.0f, 600.0f);
+
 
 UI::UI(GLFWwindow* window, Core* core) : m_core(core) {
     initialize(window);
@@ -33,6 +37,14 @@ void UI::initialize(GLFWwindow* window) {
     ImGui::StyleColorsClassic();
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_WindowBg].w = 0.7f;
+
+    // Configure ImGuizmo to hide the center sphere
+    ImGuizmo::Style& gizmoStyle = ImGuizmo::GetStyle();
+    gizmoStyle.CenterCircleSize = 0.0f;  // Hide the white center sphere
+}
+
+glm::vec2 UI::getWindowSize() {
+    return window_size;
 }
 
 void UI::update() {
@@ -43,41 +55,79 @@ void UI::update() {
 
     // Settings window
     ImGui::SetNextWindowPos({0, 0});
-    ImGui::SetNextWindowSize({250, 300});
+    ImGui::SetNextWindowSize({window_size.x,window_size.y}, ImGuiCond_Once);
+
     ImGui::Begin("Settings");
-    ImGui::Text("Collision Debugger");
-    ImGui::Separator();
+
+    window_size = {ImGui::GetWindowSize().x,ImGui::GetWindowSize().y};
+    ImGui::SeparatorText("Collision Debugger");
 
     // Object selection
     auto& shapes = m_core->getShapes();
     int selectedIndex = m_core->getSelectedObjectIndex();
 
-    ImGui::Text("Selected Object: %d", selectedIndex + 1);
-    ImGui::Text("Total Objects: %zu", shapes.size());
-    ImGui::Separator();
+
+
+    // Add Object button
+    if (ImGui::Button("Add Object", ImVec2(120, 30))) {
+        ImGui::OpenPopup("Add Object Popup");
+    }
+
+    // Add Object popup window
+    if (ImGui::BeginPopupModal("Add Object Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        m_core->addObjectGui();
+        ImGui::EndPopup();
+    }
+    // Clear all objects button (not used)
+    // ImGui::SameLine();
+    //
+    // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6,0,0,1));
+    // ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7,0,0,1));
+    // if (ImGui::Button("Clear Objects", ImVec2(120, 30))) {
+    //     m_core->clearObjects();
+    // }
+    // ImGui::PopStyleColor(2);
+
+
+
+
+
+
+    ImGui::SeparatorText("Collision info");
+
+    m_core->collisionGui();
+
+    if (selectedIndex == -1) {
+        ImGui::Text("No object selected");
+    } else {
+        ImGui::Text("Selected Object: %d", selectedIndex);
+    }
+    m_core->selectedObjectGui(selectedIndex);
 
     // Gizmo operation selector
     static ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE;
     static ImGuizmo::MODE currentMode = ImGuizmo::WORLD;
-
-    ImGui::Text("Gizmo Controls:");
-    if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
-        currentOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
-        currentOperation = ImGuizmo::ROTATE;
-    if (ImGui::RadioButton("Scale", currentOperation == ImGuizmo::SCALE))
-        currentOperation = ImGuizmo::SCALE;
-
-    ImGui::Separator();
-    if (ImGui::RadioButton("World", currentMode == ImGuizmo::WORLD))
-        currentMode = ImGuizmo::WORLD;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
-        currentMode = ImGuizmo::LOCAL;
+    //
+    // ImGui::Text("Gizmo Controls:");
+    // if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
+    //     currentOperation = ImGuizmo::TRANSLATE;
+    // if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
+    //     currentOperation = ImGuizmo::ROTATE;
+    // if (ImGui::RadioButton("Scale", currentOperation == ImGuizmo::SCALE))
+    //     currentOperation = ImGuizmo::SCALE;
+    //
+    // ImGui::Separator();
+    // if (ImGui::RadioButton("World", currentMode == ImGuizmo::WORLD))
+    //     currentMode = ImGuizmo::WORLD;
+    // ImGui::SameLine();
+    // if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
+    //     currentMode = ImGuizmo::LOCAL;
 
     ImGui::Separator();
     ImGui::Text("Debug Grid:");
     ImGui::Checkbox("Show Grid", &m_core->getShowGrid());
+
+
 
     ImGui::End();
 
@@ -97,7 +147,7 @@ void UI::update() {
         auto windowSize = Window::getWindowSize();
         ImGuizmo::SetRect(0, 0, windowSize.x, windowSize.y);
 
-        // Draw and manipulate the gizmo
+        // Draw and manipulate the gizmo for the selected object
         ImGuizmo::Manipulate(
             glm::value_ptr(view),
             glm::value_ptr(projection),
@@ -108,7 +158,7 @@ void UI::update() {
 
         // If the gizmo was used, decompose the matrix and update the transform
         if (ImGuizmo::IsUsing()) {
-            using_gizmo = true;
+
             // Extract translation
             glm::vec3 position(model[3][0], model[3][1], model[3][2]);
 
@@ -129,14 +179,17 @@ void UI::update() {
             selectedObject.transform->setPosition(position);
             selectedObject.transform->setScale(scale);
             selectedObject.transform->setRotation(rotationMatrix);
-        } else {
-            using_gizmo = false;
         }
     }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 }
 
+bool UI::isUsingGizmo() {
+    // Use ImGuizmo's built-in functions to check if user is interacting with the gizmo
+    // IsUsing() returns true when actively manipulating
+    // IsOver() returns true when hovering over the gizmo
 
+    return ImGuizmo::IsUsing() || ImGuizmo::IsOver();
+}

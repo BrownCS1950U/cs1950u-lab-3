@@ -3,8 +3,12 @@
 #include <iostream>
 
 #include "Debug.h"
+#include "imgui.h"
 #include "Window.h"
 #include "collision/Collider.h"
+#include "collision/types/BoxCollider.h"
+#include "collision/types/CylinderCollider.h"
+#include "collision/types/SphereCollider.h"
 #include "render/Camera.h"
 #include "render/Mesh.h"
 #include "render/SkeletalMesh.h"
@@ -164,6 +168,164 @@ void draw3DArrow(glm::vec3 start, glm::vec3 end, float shaft_radius, float tip_r
     }
 }
 
+void Core::selectedObjectGui(int index) {
+    if (index < 0 || index >= m_shapes.size()) return;
+    auto& obj = m_shapes[index];
+
+    ImGui::SliderFloat3("Pos    ", glm::value_ptr(obj.transform->position_), -5.0f, 5.0f);
+    ImGui::SameLine(); if (ImGui::Button("Reset##Pos")) obj.transform->setPosition(glm::vec3(0.f));
+
+    ImGui::SliderFloat3("Scale  ", glm::value_ptr(obj.transform->scale_), 0.5f, 3.f);
+    ImGui::SameLine(); if (ImGui::Button("Reset##Scale")) obj.transform->setScale(glm::vec3(1.f));
+    glm::vec3 color = obj.material.diffuse;
+    if (ImGui::ColorEdit3("Color", glm::value_ptr(color))) {
+        obj.setColor(color);
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6,0,0,1));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7,0,0,1));
+    if (ImGui::Button("Remove Object")) {
+        removeObject(index);
+    }
+    ImGui::PopStyleColor(2);
+
+    if (ImGui::Button("Resolve collision")) {
+        resolveCollision(index);
+    }
+}
+
+void Core::collisionGui() {
+    for (size_t i = 0; i < m_shapes.size(); i++) {
+        auto& obj = m_shapes[i];
+        if (obj.collider) {
+            ImGui::Text("Object %zu Collisions:", i);
+            if (obj.isColliding()) {
+
+                for (const auto& [other_index, mtv] : obj.mtv_map) {
+                    if (mtv.collision) {
+                        // ImGui::BulletText()
+                        auto vector = mtv.normal*mtv.depth;
+                        ImGui::BulletText("Object %zu: MTV = (%.2f, %.2f, %.2f)",
+                                    other_index,
+                                    vector.x,
+                                    vector.y,
+                                    vector.z);
+                    }
+                }
+
+            } else {
+                ImGui::BulletText("No collisions");
+            }
+        }
+        ImGui::Separator();
+    }
+}
+
+void Core::addObjectGui() {
+
+    ImGui::Text("Select Object Type:");
+    ImGui::Separator();
+
+    static int selectedObjectType = SPHERE;
+
+    ImGui::RadioButton("Sphere", &selectedObjectType, SPHERE);
+    ImGui::RadioButton("Cube", &selectedObjectType, BOX);
+    ImGui::RadioButton("Cylinder", &selectedObjectType, CYLINDER);
+    ImGui::RadioButton("Convex Hull", &selectedObjectType, CONVEXHULL);
+
+    ImGui::Separator();
+
+    // Buttons at the bottom
+    if (ImGui::Button("Confirm", ImVec2(120, 0))) {
+
+        switch (selectedObjectType) {
+            default: case SPHERE: {
+                auto object = Object("sphere");
+                object.collider = new SphereCollider(object.transform);
+                m_shapes.push_back(object);
+                break;
+            }
+            case CYLINDER: {
+                auto object = Object("cylinder");
+                object.collider = new CylinderCollider(object.transform);
+                m_shapes.push_back(object);
+                break;
+            }
+            case BOX: {
+                auto object = Object("cube");
+                object.collider = new BoxCollider(object.transform);
+                m_shapes.push_back(object);
+                break;
+            }
+
+        }
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        ImGui::CloseCurrentPopup();
+    }
+
+}
+
+void Core::removeObject(int index) {
+    if (index < 0 || index >= m_shapes.size()) return;
+
+    m_shapes.erase(m_shapes.begin() + index);
+    if (m_selected_object_index == index) {
+        m_selected_object_index = -1; // Deselect if the selected object was removed
+    } else if (m_selected_object_index > index) {
+        m_selected_object_index--; // Adjust selected index if necessary
+    }
+
+    for (auto& obj : m_shapes) {
+        obj.mtv_map.clear();
+    }
+}
+
+void Core::clearObjects() {
+    m_shapes.clear();
+    m_selected_object_index = -1;
+}
+
+void Core::updateCollisions() {
+    for (size_t i = 0; i < m_shapes.size(); i++) {
+        auto& obj = m_shapes[i];
+        for (size_t j = i; j < m_shapes.size(); j++) {
+            if (i == j) continue;
+            if (auto& other = m_shapes[j]; obj.collider && other.collider) {
+                auto mtv = obj.collider->getMTV(other.collider);
+                obj.mtv_map[j] = mtv;
+                other.mtv_map[i] = mtv.invert();
+            }
+        }
+    }
+
+}
+
+void Core::resolveCollision(int index) {
+    if (index < 0 || index >= m_shapes.size()) return;
+    auto& obj = m_shapes[index];
+
+    if (!obj.isColliding()) return;
+
+
+    for (int i=0; i<m_shapes.size(); i++) {
+        if (i == index) continue;
+        if (obj.mtv_map.find(i) != obj.mtv_map.end()) {
+            auto mtv = obj.mtv_map[i];
+            if (mtv.collision) {
+                // Move object out of collision along MTV
+                obj.transform->setPosition(obj.transform->getPosition() + mtv.normal * mtv.depth);
+                updateCollisions();
+            }
+        }
+    }
+
+}
+
 void Core::drawDebugGrid() {
     if (!m_show_grid) return;
 
@@ -243,6 +405,37 @@ void Core::drawDebugGrid() {
     );
 }
 
+constexpr float GIZMO_INDICATOR_RADIUS = 0.05f; // 10% of default size
+void Core::drawSelectionIndicators() {
+    auto sphere = gl::Graphics::getShape("sphere");
+
+    for (size_t i = 0; i < m_shapes.size(); i++) {
+        const auto& obj = m_shapes[i];
+
+        Transform indicatorTransform;
+        indicatorTransform.setPosition(obj.transform->getPosition());
+
+        // Small sphere - 10% of default size
+        indicatorTransform.setScale(glm::vec3(2*GIZMO_INDICATOR_RADIUS));
+
+        // Color: white for unselected, yellow for selected
+        gl::DrawMaterial indicatorMaterial;
+        if (i == m_selected_object_index) {
+            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 0.0f);  // Yellow
+            indicatorMaterial.diffuse = glm::vec3(1.0f, 1.0f, 0.0f);
+        } else {
+            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 1.0f);  // White
+            indicatorMaterial.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        indicatorMaterial.specular = glm::vec3(0.5f);
+        indicatorMaterial.shininess = 32.0f;
+
+        // Draw as solid sphere
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        gl::Graphics::drawObject(sphere, indicatorTransform, indicatorMaterial);
+    }
+}
+
 void Core::draw() {
     gl::Graphics::usePhongShader();
     gl::Graphics::setCameraUniforms(m_camera.get());
@@ -250,102 +443,61 @@ void Core::draw() {
 
     // Draw debug grid and axes
     drawDebugGrid();
+    updateCollisions();
 
     for (size_t i = 0; i < m_shapes.size(); i++) {
         auto& obj = m_shapes[i];
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         gl::Graphics::drawObject(obj.shape, *obj.transform, obj.material);
-        for (size_t j = i; j < m_shapes.size(); j++) {
-            if (i == j) continue;
-            auto& other = m_shapes[j];
-            if (obj.collider && other.collider) {
-                obj.mtv = obj.collider->getMTV(*other.collider);
-                other.mtv = other.collider->getMTV(*obj.collider);
-            }
-        }
+
 
         // Draw mtv
-        if (obj.mtv.collision && obj.mtv.mtv) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        for (const auto& [i, mtv] : obj.mtv_map) {
+            if (mtv.collision) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-            glm::vec3 center = obj.transform->getPosition();
-            glm::vec3 mtv_vector = *obj.mtv.mtv;
-            glm::vec3 arrow_end = center + mtv_vector;
+                glm::vec3 center = obj.transform->getPosition();
+                glm::vec3 mtv_vector = mtv.normal * mtv.depth;
+                glm::vec3 arrow_end = center + mtv_vector;
 
-            // Draw arrow with appropriate sizing
-            float shaft_radius = 0.05f;
-            float tip_radius = 0.1f;
+                // Draw arrow with appropriate sizing
+                float shaft_radius = 0.05f;
+                float tip_radius = 0.1f;
 
-            draw3DArrow(center, arrow_end, shaft_radius, tip_radius);
+                draw3DArrow(center, arrow_end, shaft_radius, tip_radius);
+            }
         }
     }
 
+    // Draw selection indicators (small spheres at object centers)
+    drawSelectionIndicators();
+
 }
 
-static glm::vec2 rotation(0.0f, 0.0f);
+static bool withinUIWindow(const glm::vec2& mouse_pos) {
+    // Use ImGui's built-in functions to check if mouse is over any ImGui window
+    // This includes popups, tooltips, color pickers, etc.
+    return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+           ImGui::IsAnyItemActive() ||
+           ImGui::IsAnyItemHovered();
+}
+
+
 static auto last_mouse_pos = Window::getMousePosition();
 void Core::update(double delta_time) {
     controller(delta_time);
-
-
-
-    if (!Window::isCursorVisible()) {
-        auto mouse_pos = Window::getMousePosition();
-        auto d_mouse = 0.1f*(last_mouse_pos - mouse_pos);
-        last_mouse_pos = mouse_pos;
-        rotation.x += d_mouse.y;
-        rotation.y += d_mouse.x;
-        rotation.x = glm::clamp(rotation.x, -89.0f, 89.0f);
-
-
-        glm::vec3 newFront;
-        newFront.x = sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
-        newFront.y = sin(glm::radians(rotation.x));
-        newFront.z = cos(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
-        auto newLook = glm::normalize(newFront);
-
-        m_camera->setLook(newLook);
-    }
 }
 
 void Core::controller(double delta_time) {
-    float mod = 4.f*delta_time;
-
-    auto camXZ = [](glm::vec3 look) {
-        auto cam_xz = look * glm::vec3(1,0,1);
-        cam_xz = glm::normalize(cam_xz);
-        return cam_xz;
-    };
-    if (Window::key(GLFW_KEY_W)) {
-        m_camera->setPosition(m_camera->getPosition() + mod * camXZ(m_camera->getLook()));
-    }
-    if (Window::key(GLFW_KEY_S)) {
-        m_camera->setPosition(m_camera->getPosition() - mod * camXZ(m_camera->getLook()));
-    }
-    if (Window::key(GLFW_KEY_A)) {
-        m_camera->setPosition(m_camera->getPosition() - mod * camXZ(m_camera -> getRight()));
-    }
-    if (Window::key(GLFW_KEY_D)) {
-        m_camera->setPosition(m_camera->getPosition() + mod * camXZ(m_camera -> getRight()));
-    }
-    if (Window::key(GLFW_KEY_SPACE)) {
-        m_camera->setPosition(m_camera->getPosition() + mod * m_camera->getUp());
-    }
-    if (Window::key(GLFW_KEY_LEFT_SHIFT)) {
-        m_camera->setPosition(m_camera->getPosition() - mod * m_camera -> getUp());
-    }
-
-    if (Window::key(GLFW_KEY_ENTER)) {
-        Window::hideMouse();
-    }
-    if (Window::key(GLFW_KEY_ESCAPE)) {
-        Window::showMouse();
-    }
-
-    if (Window::mouseButton(GLFW_MOUSE_BUTTON_1) && !UI::isUsingGizmo()) {
+    if (Window::mouseButton(GLFW_MOUSE_BUTTON_1)) {
+        if (UI::isUsingGizmo() && m_selected_object_index >= 0) {
+            return;
+        }
         auto mouse_pos = Window::getMousePosition();
         auto d_mouse = last_mouse_pos - mouse_pos;
         last_mouse_pos = mouse_pos;
+
+        if (withinUIWindow(mouse_pos)) return;
 
         // Horizontal mouse movement (X) = azimuth (latitude, around Y axis)
         orbit.azimuth += d_mouse.x * 0.5f; // 0.5 sensitivity
@@ -369,7 +521,6 @@ void Core::controller(double delta_time) {
 void Core::keyPressed(int key) {
     switch (key) {
     case GLFW_KEY_P: {
-        animation_playing = !animation_playing;
         break;
     }
     case GLFW_KEY_TAB: {
@@ -410,6 +561,61 @@ void Core::mouseButton(int button, int action) {
     if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
         last_mouse_pos = Window::getMousePosition();
 
+        // Don't process clicks if we're interacting with UI or gizmo
+        if ((UI::isUsingGizmo() && m_selected_object_index >= 0) || withinUIWindow(Window::getMousePosition())) {
+            return;
+        }
+
+        // Get mouse position in NDC (-1 to 1)
+        auto windowSize = Window::getWindowSize();
+        glm::vec2 mousePos = Window::getMousePosition();
+        float x = (2.0f * mousePos.x) / windowSize.x - 1.0f;
+        float y = 1.0f - (2.0f * mousePos.y) / windowSize.y;
+
+        // Create ray from camera through mouse position
+        glm::vec4 rayClip(x, y, -1.0f, 1.0f);
+        glm::mat4 projInv = glm::inverse(m_camera->getProjection(Window::getAspectRatio()));
+        glm::vec4 rayEye = projInv * rayClip;
+        rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+        glm::mat4 viewInv = glm::inverse(m_camera->getViewMatrix());
+        glm::vec3 rayWorld = glm::vec3(viewInv * rayEye);
+        rayWorld = glm::normalize(rayWorld);
+
+        glm::vec3 rayOrigin = m_camera->getPosition();
+
+        // Test ray against all selection sphere indicators
+        float closestDist = std::numeric_limits<float>::max();
+        int closestObject = -1;
+        float indicatorRadius = GIZMO_INDICATOR_RADIUS; // Same as sphere scale in drawSelectionIndicators
+
+        for (size_t i = 0; i < m_shapes.size(); i++) {
+            glm::vec3 sphereCenter = m_shapes[i].transform->getPosition();
+
+            // Ray-sphere intersection
+            glm::vec3 oc = rayOrigin - sphereCenter;
+            float a = glm::dot(rayWorld, rayWorld);
+            float b = 2.0f * glm::dot(oc, rayWorld);
+            float c = glm::dot(oc, oc) - indicatorRadius * indicatorRadius;
+            float discriminant = b * b - 4 * a * c;
+
+            if (discriminant >= 0) {
+                float t = (-b - sqrt(discriminant)) / (2.0f * a);
+                if (t > 0 && t < closestDist) {
+                    closestDist = t;
+                    closestObject = static_cast<int>(i);
+                }
+            }
+
+        }
+
+        // If we clicked on an indicator, select/deselect that object
+        if (closestObject >= 0) {
+                m_selected_object_index = closestObject; // Select clicked object
+        } else {
+            // Clicked on empty space - deselect
+            m_selected_object_index = -1;
+        }
     }
 }
 
