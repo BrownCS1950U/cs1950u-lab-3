@@ -4,10 +4,14 @@
 
 class TriangleCollider : public Collider {
 public:
-    TriangleCollider(ColliderType type, const std::shared_ptr<Transform>& transform)
-        : Collider(type, transform) {
+    TriangleCollider(const std::shared_ptr<Transform>& transform, std::array<glm::vec3, 3> vertices)
+        : Collider(TRIANGLE, transform), vertices_(vertices) {
     }
 
     MTV getMTV(const Collider* other) const override;
     glm::vec3 getSupportPoint(const glm::vec3& direction) const override;
+    const std::array<glm::vec3, 3>& getVertices() const;
+
+private:
+    std::array<glm::vec3, 3> vertices_;
 };

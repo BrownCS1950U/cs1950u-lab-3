@@ -17,6 +17,8 @@ namespace gl {
         static DrawShape loadPrimitive(const Primitive& primitive);
         static DrawMesh loadStaticMesh(const char* filename);
 
+        static std::vector<glm::vec3> loadVertices(const char* filename);
+
     private:
 
 

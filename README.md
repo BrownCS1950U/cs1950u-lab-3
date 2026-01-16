@@ -1,8 +1,13 @@
-# Collision Detection Lab - 3D Game Engines
+# Collision Debugger Lab
 
 ## Overview
 
-This lab is designed to help debug your collision method implementations. You will implement collision detection for primitive shapes and the GJK/EPA algorithm for convex shapes.
+This lab is designed to help debug your collision method implementations before integrating into your engine. You will implement collision detection for primitive shapes and the GJK/EPA algorithm for any convex shapes.
+
+### Building
+1. Ensure you have your Dependencies folder set up in the parent directory. See setup instructions.
+2. Build the project using your preferred IDE or build system.
+3. Run the executable.
 
 ### Controls
 
@@ -29,11 +34,6 @@ This lab is designed to help debug your collision method implementations. You wi
 
 ---
 
-## Lab Structure
-
-This lab is divided into two parts:
-
-
 ## Part 1: Basic Shape Collision Detection
 
 ### Objective
@@ -54,19 +54,21 @@ Make sure to fill in the support functions for different convex shapes, and feel
 - `src/GJK.cpp`  
 Feel free to add more classes / helper functions as needed.
 
+*Use the "GJK Collision mode" checkbox in the UI to override basic shape collision detection with GJK/EPA.*
 
 ### GJK/EPA Tutorials
 - [GJK](https://winter.dev/articles/gjk-algorithm)
 - [EPA](https://winter.dev/articles/epa-algorithm)
 
+### Notes on using in your Game Engine
+Once you have a working GJK/EPA implementation, it is important to use it only on convex shapes. For concave shapes, decompose them into convex parts or use a bounding volume to approximate the collider.  
+You can also use GJK/EPA for collisions with triangle meshes by treating each triangle as a convex shape, but this can be computationally expensive. Spatial organization data structures (Platformer 2) will drastically optimize these collision checks.
+
 ---
 
 ## Submission Guidelines
 
-## Help
-
-- GJK: https://winter.dev/articles/gjk-algorithm
-- EPA: 
+Show us your implementation in class to get checked off. Once your code works, it is time to integrate into your engine.
 
 ---
 
@@ -78,7 +80,7 @@ This collision debugger was built using:
 - **GLM** - Mathematics library
 - **ImGui** - UI framework
 - **ImGuizmo** - 3D manipulation gizmos
-- **Assimp** - Model loading (optional for future extensions)
+- **Assimp** - Model loading
 
 ---
 

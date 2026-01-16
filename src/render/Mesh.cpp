@@ -143,6 +143,7 @@ namespace gl {
 
             auto material_name = util::aiToString(scene->mMaterials[aimesh->mMaterialIndex]->GetName());
 
+
             DrawObject object;
             object.shape = loadStaticShapeIndexed(vertices, indices); // Use indexed loading
             object.material = materials[material_name];
@@ -154,5 +155,33 @@ namespace gl {
         mesh.max = max;
 
         return mesh;
+    }
+
+    std::vector<glm::vec3> Mesh::loadVertices(const char* filename) {
+        auto directory = util::getDirectory(filename);
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(util::getPath(filename), IMPORT_PRESET);
+
+        std::vector<glm::vec3> vertices;
+
+        int total = 0;
+        for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+            total += scene->mMeshes[i]->mNumVertices;
+        }
+        vertices.reserve(total);
+        for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+            const aiMesh* aimesh = scene->mMeshes[i];
+
+            if (!aimesh->HasNormals() || !aimesh->HasPositions()) {
+                continue;
+            }
+            for (unsigned int v = 0; v < aimesh->mNumVertices; v++) {
+                const aiVector3D& pos = aimesh->mVertices[v];
+                vertices.emplace_back(pos.x, pos.y, pos.z);
+            }
+        }
+
+        return vertices;
+
     }
 }

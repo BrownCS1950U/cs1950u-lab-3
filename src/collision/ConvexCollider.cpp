@@ -13,3 +13,7 @@ MTV ConvexCollider::getMTV(const Collider* other) const {
 glm::vec3 ConvexCollider::getSupportPoint(const glm::vec3& direction) const {
     return GJK::getConvexSupportPoint(this, direction);
 }
+
+const std::vector<glm::vec3>& ConvexCollider::getPoints() const {
+    return points_;
+}
