@@ -7,7 +7,7 @@
 #include "Shaders.h"
 #include "SkeletalMesh.h"
 #include "stb_image.h"
-#include "../Debug.h"
+#include "../core/Debug.h"
 
 namespace gl {
 

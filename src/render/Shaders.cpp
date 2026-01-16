@@ -2,8 +2,8 @@
 
 #include <fstream>
 
-#include "../Debug.h"
-#include "../Util.h"
+#include "../core/Debug.h"
+#include "../core/Util.h"
 
 namespace gl {
 
