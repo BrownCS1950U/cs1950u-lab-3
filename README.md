@@ -1,29 +1,89 @@
-# Collision Debugger
+# Collision Detection Lab - 3D Game Engines
 
-This program provides a simple scene to test out your collision algorithm and visualize the MTVs returned by your implementation.
+## Overview
 
-## Usage
+This lab is designed to help debug your collision method implementations. You will implement collision detection for primitive shapes and the GJK/EPA algorithm for convex shapes.
 
-To compile, create a directory called `build` and create Makefile using the cmake build system
+### Controls
 
-    mkdir build && cd build
-    cmake ..
-    make
+**Camera:**
+- Left Mouse Drag: Rotate camera around origin
+- Scroll: Zoom in/out
 
-To run, make sure you are inside `build` directory, and then
+**Object Selection:**
+- Click white sphere indicators to select objects
+- Click empty space to deselect
+- TAB: Cycle to next object
+- `[` / `]`: Previous/Next object
+- `1-9`: Select object by number
 
-    ../bin/viewer
+**Object Manipulation (ImGuizmo):**
+- Select an object to show manipulation gizmo
+- Drag arrows to translate
 
-## Todos
+**Debug Visualization:**
+- Orange arrows show MTV (Minimum Translation Vector) when objects collide
+- Yellow sphere = selected object
+- White spheres = unselected objects
+- Grid shows XZ plane with colored axes (Red=X, Green=Y, Blue=Z)
 
-Go to `src/collision/collision.cpp`, and finish your collision algorithm there. Implement `updateCylinderCylinderCollisio()` and `updateEllipsoidTriangleCollision()` if you decide to do ellipsoid-triangle, or `updateGJKCollision()` for GJK-EPA. Collider definitions are available in `src/collision/collider.h`.
+---
 
-The scene contains a slope, 2 cylinders, and 1 ellipsoid. The program will show the MTVs for the objects once the array is filled in with data. So please make sure you update `m_mtvs` with corresponding collider object ID:
+## Lab Structure
 
-    m_mtvs[collider.id] = mtv;
+This lab is divided into two parts:
 
-You can move objects around with arrow keys and use the left panel to switch to another object to control if necessary.
 
-To get boilerplate code and complex data structures out of the way and let you focus on algorithm implementation, ECS is not adopted in this project. You can directly access and modify colliders properties. For example:
+## Part 1: Basic Shape Collision Detection
 
-    float radius = m_cylinder.radius;
+### Objective
+Implement collision detection methods for simple shapes: Sphere, AABB, and Cylinder. Each method should return whether a collision occurred and the Minimum Translation Vector (MTV) if applicable.
+
+### Files to Modify
+- `src/Collider.cpp`  
+Feel free to add more classes / helper functions as needed.
+
+## Part 2: GJK/EPA Algorithm
+
+### Objective
+Implement the Gilbert-Johnson-Keerthi (GJK) algorithm for collision detection and the Expanding Polytope Algorithm (EPA) for calculating MTV.
+Make sure to fill in the support functions for different convex shapes, and feel free to add more (e.g cones, capsules) if desired.
+
+### Files to Modify
+- `src/GJK.h`
+- `src/GJK.cpp`  
+Feel free to add more classes / helper functions as needed.
+
+
+### GJK/EPA Tutorials
+- [GJK](https://winter.dev/articles/gjk-algorithm)
+- [EPA](https://winter.dev/articles/epa-algorithm)
+
+---
+
+## Submission Guidelines
+
+## Help
+
+- GJK: https://winter.dev/articles/gjk-algorithm
+- EPA: 
+
+---
+
+## Credits
+
+This collision debugger was built using:
+- **GLFW** - Window and input handling
+- **GLEW** - OpenGL extension loading
+- **GLM** - Mathematics library
+- **ImGui** - UI framework
+- **ImGuizmo** - 3D manipulation gizmos
+- **Assimp** - Model loading (optional for future extensions)
+
+---
+
+## License
+
+This lab is provided for educational purposes. Students may use and modify the code for learning. Redistribution or commercial use is prohibited without permission.
+
+---
