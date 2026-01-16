@@ -19,13 +19,10 @@ set(DEP_ENABLE_ALL ON)
 set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies")
 add_subdirectory(${DEPENDENCIES_DIR} External EXCLUDE_FROM_ALL)
 
-# Add ImGuizmo subdirectory
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuizmo" ImGuizmo)
 
 # Link all dependencies using the unified interface library
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Dependencies::AllEnabled
-        ImGuizmo::ImGuizmo
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
