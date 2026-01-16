@@ -1,7 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
 
-// namespace gl {
     class Transform {
     public:
         Transform();
@@ -26,4 +25,3 @@
         glm::mat4 rotation_ = glm::mat4(1.0f);
 
     };
-// }

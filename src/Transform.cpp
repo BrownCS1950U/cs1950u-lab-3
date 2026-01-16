@@ -1,10 +1,5 @@
-//
-// Created by Marcus Winter on 11/15/25.
-//
-
 #include "Transform.h"
 
-// namespace gl {
 Transform::Transform() {
 }
 
@@ -57,5 +52,3 @@ glm::mat4 Transform::getModelMatrix() const {
     model = glm::scale(model, scale_);
     return model;
 }
-
-// }

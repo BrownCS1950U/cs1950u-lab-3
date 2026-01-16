@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "collision/Collider.h"
+#include "Collider.h"
 #include "render/Graphics.h"
 #include "render/SkeletalMesh.h"
 
@@ -13,14 +13,14 @@ namespace gl {
     struct DrawShape;
 }
 
-struct Object {
-    explicit Object(const std::string& name) {
+struct CollisionObject {
+    explicit CollisionObject(const std::string& name) {
         shape = gl::Graphics::getShape(name);
         transform = std::make_shared<Transform>();
         material = gl::defaultMaterial;
     }
 
-    explicit Object(gl::DrawShape* shape) : shape(shape) {
+    explicit CollisionObject(gl::DrawShape* shape) : shape(shape) {
         transform = std::make_shared<Transform>();
         material = gl::defaultMaterial;
     }
@@ -60,42 +60,32 @@ public:
     Core();
     ~Core() = default;
     void draw();
-
     void update(double delta_time);
-    void controller(double delta_time);
-
-    void keyPressed(int key);
     void mouseButton(int button, int action);
-
     void onScroll(double xoffset, double yoffset);
 
-    // Accessors for UI/ImGuizmo
     std::shared_ptr<gl::Camera> getCamera() const { return m_camera; }
-    std::vector<Object>& getShapes() { return m_shapes; }
+    std::vector<CollisionObject>& getShapes() { return m_shapes; }
     int getSelectedObjectIndex() const { return m_selected_object_index; }
     void setSelectedObjectIndex(int index) { m_selected_object_index = index; }
-
     void selectedObjectGui(int index);
-
-    // Grid control accessors
     bool& getShowGrid() { return m_show_grid; }
     void collisionGui();
     void addObjectGui();
-    void removeObject(int index);
-    void clearObjects();
-
-    void updateCollisions();
-    void resolveCollision(int index);
-
 
 
 private:
+    void controller();
     void drawDebugGrid();
     void drawSelectionIndicators();
+    void removeObject(int index);
+    void clearObjects();
+    void updateCollisions();
+    void resolveCollision(int index);
 
     std::shared_ptr<gl::Camera> m_camera;
     std::shared_ptr<gl::Light> m_light;
-    std::vector<Object> m_shapes;
+    std::vector<CollisionObject> m_shapes;
     int m_selected_object_index = -1;
     OrbitCameraControls orbit;
 

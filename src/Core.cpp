@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-#include "Debug.h"
+#include "core/Debug.h"
 #include "imgui.h"
-#include "Window.h"
-#include "collision/Collider.h"
-#include "collision/types/BoxCollider.h"
-#include "collision/types/CylinderCollider.h"
-#include "collision/types/SphereCollider.h"
+#include "core/Window.h"
+#include "Collider.h"
+#include "collision/BoxCollider.h"
+#include "collision/CylinderCollider.h"
+#include "collision/SphereCollider.h"
 #include "render/Camera.h"
 #include "render/Mesh.h"
 #include "render/SkeletalMesh.h"
@@ -19,9 +19,7 @@
 #include "render/shapes/Sphere.h"
 
 
-
 Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_shared<gl::Light>()) {
-
     m_light->position = glm::vec3(0, 5, 0);
 
     // Initialize orbit camera position using spherical coordinates
@@ -36,9 +34,9 @@ Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_share
     m_camera->setLook(glm::normalize(orbit.target - pos));
 
     auto cube = gl::Cube(1);
-    auto cone = gl::Cone(8,4);
-    auto cylinder = gl::Cylinder(8,1);
-    auto sphere = gl::Sphere(8,8);
+    auto cone = gl::Cone(8, 4);
+    auto cylinder = gl::Cylinder(8, 1);
+    auto sphere = gl::Sphere(8, 8);
     auto quad = gl::Quad(1);
 
     gl::Graphics::addShape("cube", cube.loadDrawShape());
@@ -48,20 +46,18 @@ Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_share
     gl::Graphics::addShape("quad", quad.loadDrawShape());
 
 
-
-    auto object = Object("sphere");
+    auto object = CollisionObject("sphere");
     object.transform->setPosition(glm::vec3(-1, 0, 0));
     object.collider = new SphereCollider(object.transform);
 
 
-    auto object2 = Object("sphere");
+    auto object2 = CollisionObject("sphere");
     object2.transform->setPosition(glm::vec3(1, 0, 0));
     object2.collider = new SphereCollider(object2.transform);
 
 
     m_shapes.push_back(object);
     m_shapes.push_back(object2);
-
 }
 
 static bool animation_playing = true;
@@ -129,7 +125,8 @@ void draw3DArrow(glm::vec3 start, glm::vec3 end, float shaft_radius, float tip_r
             axis = glm::normalize(axis);
             float angle = acos(glm::clamp(glm::dot(up, normalized_dir), -1.0f, 1.0f));
             shaft_transform.rotate(angle, axis);
-        } else if (glm::dot(up, normalized_dir) < 0) {
+        }
+        else if (glm::dot(up, normalized_dir) < 0) {
             // Pointing down, rotate 180 degrees
             shaft_transform.rotate(glm::pi<float>(), glm::vec3(1, 0, 0));
         }
@@ -159,7 +156,8 @@ void draw3DArrow(glm::vec3 start, glm::vec3 end, float shaft_radius, float tip_r
             axis = glm::normalize(axis);
             float angle = acos(glm::clamp(glm::dot(up, normalized_dir), -1.0f, 1.0f));
             tip_transform.rotate(angle, axis);
-        } else if (glm::dot(up, normalized_dir) < 0) {
+        }
+        else if (glm::dot(up, normalized_dir) < 0) {
             // Pointing down, rotate 180 degrees
             tip_transform.rotate(glm::pi<float>(), glm::vec3(1, 0, 0));
         }
@@ -173,17 +171,19 @@ void Core::selectedObjectGui(int index) {
     auto& obj = m_shapes[index];
 
     ImGui::SliderFloat3("Pos    ", glm::value_ptr(obj.transform->position_), -5.0f, 5.0f);
-    ImGui::SameLine(); if (ImGui::Button("Reset##Pos")) obj.transform->setPosition(glm::vec3(0.f));
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Pos")) obj.transform->setPosition(glm::vec3(0.f));
 
     ImGui::SliderFloat3("Scale  ", glm::value_ptr(obj.transform->scale_), 0.5f, 3.f);
-    ImGui::SameLine(); if (ImGui::Button("Reset##Scale")) obj.transform->setScale(glm::vec3(1.f));
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##Scale")) obj.transform->setScale(glm::vec3(1.f));
     glm::vec3 color = obj.material.diffuse;
     if (ImGui::ColorEdit3("Color", glm::value_ptr(color))) {
         obj.setColor(color);
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6,0,0,1));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7,0,0,1));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6, 0, 0, 1));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7, 0, 0, 1));
     if (ImGui::Button("Remove Object")) {
         removeObject(index);
     }
@@ -200,20 +200,19 @@ void Core::collisionGui() {
         if (obj.collider) {
             ImGui::Text("Object %zu Collisions:", i);
             if (obj.isColliding()) {
-
                 for (const auto& [other_index, mtv] : obj.mtv_map) {
                     if (mtv.collision) {
                         // ImGui::BulletText()
-                        auto vector = mtv.normal*mtv.depth;
+                        auto vector = mtv.normal * mtv.depth;
                         ImGui::BulletText("Object %zu: MTV = (%.2f, %.2f, %.2f)",
-                                    other_index,
-                                    vector.x,
-                                    vector.y,
-                                    vector.z);
+                                          other_index,
+                                          vector.x,
+                                          vector.y,
+                                          vector.z);
                     }
                 }
-
-            } else {
+            }
+            else {
                 ImGui::BulletText("No collisions");
             }
         }
@@ -222,7 +221,6 @@ void Core::collisionGui() {
 }
 
 void Core::addObjectGui() {
-
     ImGui::Text("Select Object Type:");
     ImGui::Separator();
 
@@ -237,27 +235,25 @@ void Core::addObjectGui() {
 
     // Buttons at the bottom
     if (ImGui::Button("Confirm", ImVec2(120, 0))) {
-
         switch (selectedObjectType) {
-            default: case SPHERE: {
-                auto object = Object("sphere");
-                object.collider = new SphereCollider(object.transform);
-                m_shapes.push_back(object);
-                break;
-            }
-            case CYLINDER: {
-                auto object = Object("cylinder");
-                object.collider = new CylinderCollider(object.transform);
-                m_shapes.push_back(object);
-                break;
-            }
-            case BOX: {
-                auto object = Object("cube");
-                object.collider = new BoxCollider(object.transform);
-                m_shapes.push_back(object);
-                break;
-            }
-
+        default: case SPHERE: {
+            auto object = CollisionObject("sphere");
+            object.collider = new SphereCollider(object.transform);
+            m_shapes.push_back(object);
+            break;
+        }
+        case CYLINDER: {
+            auto object = CollisionObject("cylinder");
+            object.collider = new CylinderCollider(object.transform);
+            m_shapes.push_back(object);
+            break;
+        }
+        case BOX: {
+            auto object = CollisionObject("cube");
+            object.collider = new BoxCollider(object.transform);
+            m_shapes.push_back(object);
+            break;
+        }
         }
         ImGui::CloseCurrentPopup();
     }
@@ -267,7 +263,6 @@ void Core::addObjectGui() {
     if (ImGui::Button("Cancel", ImVec2(120, 0))) {
         ImGui::CloseCurrentPopup();
     }
-
 }
 
 void Core::removeObject(int index) {
@@ -276,7 +271,8 @@ void Core::removeObject(int index) {
     m_shapes.erase(m_shapes.begin() + index);
     if (m_selected_object_index == index) {
         m_selected_object_index = -1; // Deselect if the selected object was removed
-    } else if (m_selected_object_index > index) {
+    }
+    else if (m_selected_object_index > index) {
         m_selected_object_index--; // Adjust selected index if necessary
     }
 
@@ -302,7 +298,6 @@ void Core::updateCollisions() {
             }
         }
     }
-
 }
 
 void Core::resolveCollision(int index) {
@@ -312,7 +307,7 @@ void Core::resolveCollision(int index) {
     if (!obj.isColliding()) return;
 
 
-    for (int i=0; i<m_shapes.size(); i++) {
+    for (int i = 0; i < m_shapes.size(); i++) {
         if (i == index) continue;
         if (obj.mtv_map.find(i) != obj.mtv_map.end()) {
             auto mtv = obj.mtv_map[i];
@@ -323,20 +318,19 @@ void Core::resolveCollision(int index) {
             }
         }
     }
-
 }
 
 void Core::drawDebugGrid() {
     if (!m_show_grid) return;
 
     // Colors for axes (standard RGB convention)
-    const glm::vec3 X_AXIS_POS_COLOR(1.0f, 0.0f, 0.0f);  // Red
-    const glm::vec3 X_AXIS_NEG_COLOR(0.5f, 0.0f, 0.0f);  // Dark Red
-    const glm::vec3 Y_AXIS_POS_COLOR(0.0f, 1.0f, 0.0f);  // Green
-    const glm::vec3 Y_AXIS_NEG_COLOR(0.0f, 0.5f, 0.0f);  // Dark Green
-    const glm::vec3 Z_AXIS_POS_COLOR(0.0f, 0.0f, 1.0f);  // Blue
-    const glm::vec3 Z_AXIS_NEG_COLOR(0.0f, 0.0f, 0.5f);  // Dark Blue
-    const glm::vec3 GRID_COLOR(0.7);        // Gray
+    const glm::vec3 X_AXIS_POS_COLOR(1.0f, 0.0f, 0.0f); // Red
+    const glm::vec3 X_AXIS_NEG_COLOR(0.5f, 0.0f, 0.0f); // Dark Red
+    const glm::vec3 Y_AXIS_POS_COLOR(0.0f, 1.0f, 0.0f); // Green
+    const glm::vec3 Y_AXIS_NEG_COLOR(0.0f, 0.5f, 0.0f); // Dark Green
+    const glm::vec3 Z_AXIS_POS_COLOR(0.0f, 0.0f, 1.0f); // Blue
+    const glm::vec3 Z_AXIS_NEG_COLOR(0.0f, 0.0f, 0.5f); // Dark Blue
+    const glm::vec3 GRID_COLOR(0.7); // Gray
 
     const float AXIS_LINE_WIDTH = 3.0f;
     const float GRID_LINE_WIDTH = 1.0f;
@@ -344,7 +338,7 @@ void Core::drawDebugGrid() {
     // Draw XZ plane grid
     for (float i = -m_grid_size; i <= m_grid_size; i += m_cell_size) {
         // Lines parallel to X axis
-        if (i==0.0f) continue; // Skip axis line, drawn later
+        if (i == 0.0f) continue; // Skip axis line, drawn later
         gl::Graphics::drawLine3D(
             glm::vec3(-m_grid_size, 0.0f, i),
             glm::vec3(m_grid_size, 0.0f, i),
@@ -416,15 +410,16 @@ void Core::drawSelectionIndicators() {
         indicatorTransform.setPosition(obj.transform->getPosition());
 
         // Small sphere - 10% of default size
-        indicatorTransform.setScale(glm::vec3(2*GIZMO_INDICATOR_RADIUS));
+        indicatorTransform.setScale(glm::vec3(2 * GIZMO_INDICATOR_RADIUS));
 
         // Color: white for unselected, yellow for selected
         gl::DrawMaterial indicatorMaterial;
         if (i == m_selected_object_index) {
-            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 0.0f);  // Yellow
+            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 0.0f); // Yellow
             indicatorMaterial.diffuse = glm::vec3(1.0f, 1.0f, 0.0f);
-        } else {
-            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 1.0f);  // White
+        }
+        else {
+            indicatorMaterial.ambient = glm::vec3(1.0f, 1.0f, 1.0f); // White
             indicatorMaterial.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         indicatorMaterial.specular = glm::vec3(0.5f);
@@ -471,24 +466,24 @@ void Core::draw() {
 
     // Draw selection indicators (small spheres at object centers)
     drawSelectionIndicators();
-
 }
 
 static bool withinUIWindow(const glm::vec2& mouse_pos) {
     // Use ImGui's built-in functions to check if mouse is over any ImGui window
     // This includes popups, tooltips, color pickers, etc.
     return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-           ImGui::IsAnyItemActive() ||
-           ImGui::IsAnyItemHovered();
+        ImGui::IsAnyItemActive() ||
+        ImGui::IsAnyItemHovered();
 }
 
 
 static auto last_mouse_pos = Window::getMousePosition();
+
 void Core::update(double delta_time) {
-    controller(delta_time);
+    controller();
 }
 
-void Core::controller(double delta_time) {
+void Core::controller() {
     if (Window::mouseButton(GLFW_MOUSE_BUTTON_1)) {
         if (UI::isUsingGizmo() && m_selected_object_index >= 0) {
             return;
@@ -516,45 +511,6 @@ void Core::controller(double delta_time) {
     );
     m_camera->setPosition(pos);
     m_camera->setLook(glm::normalize(orbit.target - pos));
-}
-
-void Core::keyPressed(int key) {
-    switch (key) {
-    case GLFW_KEY_P: {
-        break;
-    }
-    case GLFW_KEY_TAB: {
-        // Cycle through objects
-        m_selected_object_index = (m_selected_object_index + 1) % m_shapes.size();
-        break;
-    }
-    case GLFW_KEY_LEFT_BRACKET: {
-        // Previous object
-        m_selected_object_index = (m_selected_object_index - 1 + m_shapes.size()) % m_shapes.size();
-        break;
-    }
-    case GLFW_KEY_RIGHT_BRACKET: {
-        // Next object
-        m_selected_object_index = (m_selected_object_index + 1) % m_shapes.size();
-        break;
-    }
-    case GLFW_KEY_1:
-    case GLFW_KEY_2:
-    case GLFW_KEY_3:
-    case GLFW_KEY_4:
-    case GLFW_KEY_5:
-    case GLFW_KEY_6:
-    case GLFW_KEY_7:
-    case GLFW_KEY_8:
-    case GLFW_KEY_9: {
-        // Select object by number (1-9)
-        int index = key - GLFW_KEY_1;
-        if (index < m_shapes.size()) {
-            m_selected_object_index = index;
-        }
-        break;
-    }
-    }
 }
 
 void Core::mouseButton(int button, int action) {
@@ -606,13 +562,13 @@ void Core::mouseButton(int button, int action) {
                     closestObject = static_cast<int>(i);
                 }
             }
-
         }
 
         // If we clicked on an indicator, select/deselect that object
         if (closestObject >= 0) {
-                m_selected_object_index = closestObject; // Select clicked object
-        } else {
+            m_selected_object_index = closestObject; // Select clicked object
+        }
+        else {
             // Clicked on empty space - deselect
             m_selected_object_index = -1;
         }
@@ -627,6 +583,3 @@ void Core::onScroll(double xoffset, double yoffset) {
     orbit.distance -= mod;
     orbit.distance = glm::clamp(orbit.distance, 1.0f, 100.0f);
 }
-
-
-
