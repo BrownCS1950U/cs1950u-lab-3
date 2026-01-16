@@ -71,6 +71,8 @@ public:
     void selectedObjectGui(int index);
     bool& getShowGrid() { return m_show_grid; }
     void collisionGui();
+
+    // GUI popup to add new object
     void addObjectGui();
 
 

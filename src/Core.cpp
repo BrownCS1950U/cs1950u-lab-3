@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "core/Window.h"
 #include "Collider.h"
+#include "GJK.h"
 #include "collision/BoxCollider.h"
 #include "collision/CylinderCollider.h"
 #include "collision/SphereCollider.h"
@@ -292,7 +293,12 @@ void Core::updateCollisions() {
         for (size_t j = i; j < m_shapes.size(); j++) {
             if (i == j) continue;
             if (auto& other = m_shapes[j]; obj.collider && other.collider) {
-                auto mtv = obj.collider->getMTV(other.collider);
+                MTV mtv;
+                if (Collider::gjk_mode) {
+                    mtv = GJK::getMTV(obj.collider, other.collider);
+                } else {
+                    mtv = obj.collider->getMTV(other.collider);
+                }
                 obj.mtv_map[j] = mtv;
                 other.mtv_map[i] = mtv.invert();
             }
