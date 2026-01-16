@@ -9,3 +9,7 @@ MTV TriangleCollider::getMTV(const Collider* other) const {
 glm::vec3 TriangleCollider::getSupportPoint(const glm::vec3& direction) const {
     return GJK::getTriangleSupportPoint(this, direction);
 }
+
+const std::array<glm::vec3, 3>& TriangleCollider::getVertices() const {
+    return vertices_;
+}

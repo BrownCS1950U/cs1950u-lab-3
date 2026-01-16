@@ -8,8 +8,11 @@
 #include "Collider.h"
 #include "GJK.h"
 #include "collision/BoxCollider.h"
+#include "collision/ConvexCollider.h"
 #include "collision/CylinderCollider.h"
 #include "collision/SphereCollider.h"
+#include "collision/TriangleCollider.h"
+
 #include "render/Camera.h"
 #include "render/Mesh.h"
 #include "render/SkeletalMesh.h"
@@ -20,6 +23,7 @@
 #include "render/shapes/Sphere.h"
 
 
+static const char* CONVEX_HULL_PATH = "Resources/Models/convex_hull.obj";
 Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_shared<gl::Light>()) {
     m_light->position = glm::vec3(0, 5, 0);
 
@@ -34,7 +38,7 @@ Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_share
     m_camera->setPosition(pos);
     m_camera->setLook(glm::normalize(orbit.target - pos));
 
-    auto cube = gl::Cube(1);
+    auto cube = gl::Cube(3);
     auto cone = gl::Cone(8, 4);
     auto cylinder = gl::Cylinder(8, 1);
     auto sphere = gl::Sphere(8, 8);
@@ -46,6 +50,14 @@ Core::Core() : m_camera(std::make_shared<gl::Camera>()), m_light(std::make_share
     gl::Graphics::addShape("sphere", sphere.loadDrawShape());
     gl::Graphics::addShape("quad", quad.loadDrawShape());
 
+    gl::Graphics::addShape("convex_hull", gl::Mesh::loadStaticMesh(CONVEX_HULL_PATH).objects[0].shape); // Placeholder
+    convex_vertices = gl::Mesh::loadVertices(CONVEX_HULL_PATH);
+
+    gl::Graphics::addShape("triangle", gl::Mesh::loadStaticMesh("Resources/Models/triangle.obj").objects[0].shape); // Placeholder
+    auto verts = gl::Mesh::loadVertices("Resources/Models/triangle.obj");
+    for (size_t i = 0; i < triangle_vertices.size(); i++) {
+        triangle_vertices[i] = verts[i];
+    }
 
     auto object = CollisionObject("sphere");
     object.transform->setPosition(glm::vec3(-1, 0, 0));
@@ -167,6 +179,10 @@ void draw3DArrow(glm::vec3 start, glm::vec3 end, float shaft_radius, float tip_r
     }
 }
 
+float getObjectScaleFactor(glm::vec3 size) {
+    return 1.f / std::max({size.x, size.y, size.z});
+}
+
 void Core::selectedObjectGui(int index) {
     if (index < 0 || index >= m_shapes.size()) return;
     auto& obj = m_shapes[index];
@@ -175,9 +191,13 @@ void Core::selectedObjectGui(int index) {
     ImGui::SameLine();
     if (ImGui::Button("Reset##Pos")) obj.transform->setPosition(glm::vec3(0.f));
 
-    ImGui::SliderFloat3("Scale  ", glm::value_ptr(obj.transform->scale_), 0.5f, 3.f);
+    auto obj_scale = getObjectScaleFactor(obj.shape->max - obj.shape->min);
+    float max_scale = 3.f * obj_scale;
+    float min_scale = 0.5f * obj_scale;
+
+    ImGui::SliderFloat3("Scale  ", glm::value_ptr(obj.transform->scale_), min_scale, max_scale);
     ImGui::SameLine();
-    if (ImGui::Button("Reset##Scale")) obj.transform->setScale(glm::vec3(1.f));
+    if (ImGui::Button("Reset##Scale")) obj.transform->setScale(glm::vec3(1.f*obj_scale));
     glm::vec3 color = obj.material.diffuse;
     if (ImGui::ColorEdit3("Color", glm::value_ptr(color))) {
         obj.setColor(color);
@@ -196,6 +216,12 @@ void Core::selectedObjectGui(int index) {
 }
 
 void Core::collisionGui() {
+
+
+    ImGui::Checkbox("GJK Collision mode", &Collider::gjk_mode);
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Overrides the basic primitive collision functions with your GJK implementation.");
+    }
     for (size_t i = 0; i < m_shapes.size(); i++) {
         auto& obj = m_shapes[i];
         if (obj.collider) {
@@ -231,7 +257,7 @@ void Core::addObjectGui() {
     ImGui::RadioButton("Cube", &selectedObjectType, BOX);
     ImGui::RadioButton("Cylinder", &selectedObjectType, CYLINDER);
     ImGui::RadioButton("Convex Hull", &selectedObjectType, CONVEXHULL);
-
+    ImGui::RadioButton("Triangle", &selectedObjectType, TRIANGLE);
     ImGui::Separator();
 
     // Buttons at the bottom
@@ -254,6 +280,19 @@ void Core::addObjectGui() {
             object.collider = new BoxCollider(object.transform);
             m_shapes.push_back(object);
             break;
+        }
+        case TRIANGLE: {
+            auto object = CollisionObject("triangle");
+            object.collider = new TriangleCollider(object.transform, triangle_vertices);
+            m_shapes.push_back(object);
+            break;
+
+        }
+        case CONVEXHULL: {
+            auto object = CollisionObject("convex_hull");
+            object.transform->setScale(glm::vec3(getObjectScaleFactor(object.shape->max - object.shape->min)));
+            object.collider = new ConvexCollider(object.transform, convex_vertices);
+            m_shapes.push_back(object);
         }
         }
         ImGui::CloseCurrentPopup();

@@ -1,5 +1,7 @@
 #include "GJK.h"
 #include "Collider.h"
+#include "collision/ConvexCollider.h"
+#include "collision/TriangleCollider.h"
 
 
 bool GJK::detectCollision(const Collider* a, const Collider* b, Simplex& simplex) {
@@ -34,10 +36,12 @@ glm::vec3 GJK::getSphereSupportPoint(const SphereCollider* sphere, const glm::ve
 
 glm::vec3 GJK::getConvexSupportPoint(const ConvexCollider* convex, const glm::vec3& direction) {
     // TODO
+    auto points = convex->getPoints();
     return {};
 }
 
 glm::vec3 GJK::getTriangleSupportPoint(const TriangleCollider* triangle, const glm::vec3& direction) {
     // TODO
+    auto vertices = triangle->getVertices();
     return {};
 }

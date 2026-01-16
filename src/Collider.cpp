@@ -14,6 +14,7 @@ Collider::Collider(const ColliderType type, const std::shared_ptr<Transform>& tr
 
 }
 
+// Example
 MTV Collider::sphereSphere(const SphereCollider* a, const SphereCollider* b) {
     const auto& scale_a = a->transform->scale_;
     const auto& scale_b = b->transform->scale_;
@@ -77,7 +78,7 @@ MTV Collider::sphereBox(const SphereCollider* a, const BoxCollider* b) {
 }
 
 
-// Defaults colliders to use GJK for collision detection if not overridden
+// Defaults colliders to use GJK for collision detection if no specific implementation exists
 MTV Collider::collideCylinder(const CylinderCollider* cylinder) const {
     return GJK::getMTV(this, cylinder);
 }

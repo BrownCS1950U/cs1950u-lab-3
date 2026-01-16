@@ -91,6 +91,8 @@ private:
     int m_selected_object_index = -1;
     OrbitCameraControls orbit;
 
+    std::vector<glm::vec3> convex_vertices;
+    std::array<glm::vec3, 3> triangle_vertices;
     // Grid settings
     bool m_show_grid = true;
     const float m_grid_size = 10.0f;  // Grid extends from -10 to +10

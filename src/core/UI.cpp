@@ -75,20 +75,6 @@ void UI::update() {
         m_core->addObjectGui();
         ImGui::EndPopup();
     }
-    // Clear all objects button (not used)
-    // ImGui::SameLine();
-    //
-    // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6,0,0,1));
-    // ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7,0,0,1));
-    // if (ImGui::Button("Clear Objects", ImVec2(120, 30))) {
-    //     m_core->clearObjects();
-    // }
-    // ImGui::PopStyleColor(2);
-
-
-
-
-
 
     ImGui::SeparatorText("Collision info");
 
@@ -105,11 +91,7 @@ void UI::update() {
     static ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE;
     static ImGuizmo::MODE currentMode = ImGuizmo::WORLD;
     //
-    // ImGui::Text("Gizmo Controls:");
-    // if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
-    //     currentOperation = ImGuizmo::TRANSLATE;
-    // if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
-    //     currentOperation = ImGuizmo::ROTATE;
+
     // if (ImGui::RadioButton("Scale", currentOperation == ImGuizmo::SCALE))
     //     currentOperation = ImGuizmo::SCALE;
     //
@@ -120,9 +102,27 @@ void UI::update() {
     // if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
     //     currentMode = ImGuizmo::LOCAL;
 
-    ImGui::Separator();
-    ImGui::Text("Debug Grid:");
-    ImGui::Checkbox("Show Grid", &m_core->getShowGrid());
+
+
+    // Advanced dropdown menu
+    if (ImGui::CollapsingHeader("Advanced")) {
+        // Add your advanced settings here
+        ImGui::SeparatorText("Rotation");
+        ImGui::Text("Make sure you have implemented rotation handling \nin your collision methods if using");
+
+        ImGui::Text("Gizmo Control Mode:");
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
+            currentOperation = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
+            currentOperation = ImGuizmo::ROTATE;
+
+        ImGui::SeparatorText("Debug Grid:");
+        ImGui::Checkbox("Show Grid", &m_core->getShowGrid());
+
+        ImGui::Separator();
+    }
 
 
 
