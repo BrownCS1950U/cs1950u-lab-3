@@ -5,6 +5,10 @@
 #include "collision/CylinderCollider.h"
 #include "collision/SphereCollider.h"
 
+
+bool Collider::gjk_mode = false;
+
+
 Collider::Collider(const ColliderType type, const std::shared_ptr<Transform>& transform):
     type(type), transform(transform) {
 

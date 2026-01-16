@@ -26,7 +26,9 @@ struct MTV {
 };
 
 class Collider {
+
 public:
+    static bool gjk_mode;
     Collider(ColliderType type, const std::shared_ptr<Transform>& transform);
     virtual ~Collider() = default;
     virtual MTV getMTV(const Collider* other) const = 0;
