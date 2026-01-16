@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../Window.h"
+#include "../core/Window.h"
 
 namespace gl {
     Camera::Camera() : position_(0.0f, 0.0f, 0.0f),

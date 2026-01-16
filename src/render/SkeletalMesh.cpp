@@ -3,8 +3,8 @@
 #include <ranges>
 
 #include "Mesh.h"
-#include "../Debug.h"
-#include "../Util.h"
+#include "../core/Debug.h"
+#include "../core/Util.h"
 #include "assimp/cimport.h"
 #include "assimp/Exporter.hpp"
 #include "assimp/Importer.hpp"

@@ -2,8 +2,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "../Debug.h"
-#include "../Util.h"
+#include "../core/Debug.h"
+#include "../core/Util.h"
 #include "assimp/material.h"
 #include "assimp/scene.h"
 #include "assimp/texture.h"
