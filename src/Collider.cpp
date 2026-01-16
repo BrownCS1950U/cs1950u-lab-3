@@ -1,9 +1,9 @@
 #include "Collider.h"
 
 #include "GJK.h"
-#include "types/BoxCollider.h"
-#include "types/CylinderCollider.h"
-#include "types/SphereCollider.h"
+#include "collision/BoxCollider.h"
+#include "collision/CylinderCollider.h"
+#include "collision/SphereCollider.h"
 
 Collider::Collider(const ColliderType type, const std::shared_ptr<Transform>& transform):
     type(type), transform(transform) {
