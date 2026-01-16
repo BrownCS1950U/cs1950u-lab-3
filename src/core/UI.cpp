@@ -5,19 +5,16 @@
 #include <GL/glew.h>
 #include "UI.h"
 
-#include "Core.h"
+#include "../Core.h"
 #include "Window.h"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "ImGuizmo.h"
-#include "render/Camera.h"
-#include "render/Transform.h"
+#include "../render/Camera.h"
+#include "../Transform.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-#include "Debug.h"
-#include "imgui_internal.h"
 
 glm::vec2 UI::window_size = glm::vec2(400.0f, 600.0f);
 

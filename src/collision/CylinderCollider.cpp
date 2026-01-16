@@ -1,7 +1,3 @@
-//
-// Created by Marcus Winter on 1/16/26.
-//
-
 #include "CylinderCollider.h"
 
 #include "../GJK.h"

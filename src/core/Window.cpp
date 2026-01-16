@@ -7,8 +7,8 @@
 
 #include <sstream>
 
-#include "render/Graphics.h"
-#include "Core.h"
+#include "../render/Graphics.h"
+#include "../Core.h"
 #include "imgui_internal.h"
 #include "UI.h"
 #include "backends/imgui_impl_glfw.h"
@@ -197,7 +197,6 @@ void Window::resizeWindowCallback(GLFWwindow* window, int width, int height) {
 void Window::keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS) {
         keys_[key] = true;
-        core_->keyPressed(key);
     }
     else if (action == GLFW_RELEASE) {
         keys_[key] = false;
