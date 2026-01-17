@@ -11,6 +11,8 @@
 #include "../Transform.h"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Visuals.h"
+
 
 glm::vec2 UI::window_size = glm::vec2(400.0f, 600.0f);
 
@@ -115,7 +117,7 @@ void UI::update() {
             currentOperation = ImGuizmo::ROTATE;
 
         ImGui::SeparatorText("Debug Grid:");
-        ImGui::Checkbox("Show Grid", &m_core->getShowGrid());
+        ImGui::Checkbox("Show Grid", &Visuals::m_show_grid);
 
         ImGui::Separator();
     }
