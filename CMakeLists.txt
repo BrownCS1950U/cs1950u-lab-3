@@ -26,7 +26,14 @@ set(DEP_IMGUI_BACKEND_GLFW ON "ImGui GLFW backend")
 set(DEP_IMGUI_BACKEND_OPENGL3 ON "ImGui OpenGL3 backend")
 set(DEP_IMGUI_FREETYPE ON "ImGui FreeType support")
 
-add_subdirectory(dependencies External EXCLUDE_FROM_ALL)
+# Assimp options - only build OBJ importer
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+
+set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies")
+add_subdirectory(${DEPENDENCIES_DIR} External EXCLUDE_FROM_ALL)
+
 
 # Link dependencies
 target_link_libraries(${PROJECT_NAME} PRIVATE glew_static)
