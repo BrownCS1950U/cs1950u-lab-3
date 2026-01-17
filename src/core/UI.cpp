@@ -1,7 +1,3 @@
-//
-// Created by Marcus Winter on 11/19/25.
-//
-
 #include <GL/glew.h>
 #include "UI.h"
 
@@ -10,7 +6,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "ImGuizmo.h"
+#include <ImGuizmo.h>
 #include "../render/Camera.h"
 #include "../Transform.h"
 #include <glm/gtc/type_ptr.hpp>

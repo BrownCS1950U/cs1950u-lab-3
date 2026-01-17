@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-#include "core/Debug.h"
-#include "imgui.h"
-#include "core/Window.h"
+#include <imgui.h>
 #include "Collider.h"
 #include "GJK.h"
 #include "collision/BoxCollider.h"
@@ -12,10 +10,10 @@
 #include "collision/CylinderCollider.h"
 #include "collision/SphereCollider.h"
 #include "collision/TriangleCollider.h"
+#include "core/Window.h"
 
 #include "render/Camera.h"
 #include "render/Mesh.h"
-#include "render/SkeletalMesh.h"
 #include "render/shapes/Cone.h"
 #include "render/shapes/Cube.h"
 #include "render/shapes/Cylinder.h"

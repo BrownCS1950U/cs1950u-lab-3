@@ -1,6 +1,5 @@
 #include "Mesh.h"
 #include "Graphics.h"
-#include "MaterialConstants.h"
 #include "../core/Util.h"
 #include "../core/Debug.h"
 #include "assimp/Importer.hpp"

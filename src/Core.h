@@ -3,7 +3,6 @@
 
 #include "Collider.h"
 #include "render/Graphics.h"
-#include "render/SkeletalMesh.h"
 
 class Collider;
 

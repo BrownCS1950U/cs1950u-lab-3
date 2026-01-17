@@ -5,7 +5,6 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Shaders.h"
-#include "SkeletalMesh.h"
 #include "stb_image.h"
 #include "../core/Debug.h"
 
@@ -84,25 +83,6 @@ namespace gl {
 
     }
 
-    void Graphics::drawSkinned(SkinnedMesh* skinned_mesh, const Transform& transform) {
-        const auto model_matrix = transform.getModelMatrix();
-        active_shader_->setMat4("model", model_matrix);
-        active_shader_->setMat3("normal", glm::transpose(glm::inverse(glm::mat3(model_matrix))));
-
-
-        const auto& draw_mesh = skinned_mesh->draw_mesh;
-        auto& skeleton = skinned_mesh->skeleton;
-
-        skeleton.updateBoneMatrices();
-        active_shader_->setMat4Vec("gBones", skeleton.num_bones_, skeleton.bone_matrices_);
-        for (const auto& obj : draw_mesh.objects) {
-            setMaterialUniforms(obj.material);
-            glBindVertexArray(obj.shape.vao);
-            glDrawElements(GL_TRIANGLES, 3 * obj.shape.numTriangles, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
-        }
-
-    }
 
     void Graphics::addShape(const char* name, const DrawShape& shape) {
         shapes_[name] = shape;
