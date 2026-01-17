@@ -11,6 +11,7 @@ bool GJK::detectCollision(const Collider* a, const Collider* b, Simplex& simplex
 }
 
 MTV GJK::getMTV(const Collider* a, const Collider* b) {
+    // TODO - implement simplex (in GJK.h)
     Simplex simplex;
     if (detectCollision(a, b, simplex)) {
         // TODO - implement EPA to get MTV

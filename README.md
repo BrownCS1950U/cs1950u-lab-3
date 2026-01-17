@@ -68,7 +68,7 @@ You can also use GJK/EPA for collisions with triangle meshes by treating each tr
 
 ## Submission Guidelines
 
-Show us your implementation in class to get checked off. Once your code works, it is time to integrate into your engine.
+Show us your implementation in class or at hours. Once your code works, integrate the collision functions into your engine.
 
 ---
 
@@ -84,8 +84,8 @@ This collision debugger was built using:
 
 ---
 
-## License
 
-This lab is provided for educational purposes. Students may use and modify the code for learning. Redistribution or commercial use is prohibited without permission.
 
----
+
+
+<!-- Created by Marcus Winter -->
