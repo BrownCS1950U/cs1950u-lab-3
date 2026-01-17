@@ -13,32 +13,10 @@ namespace gl {
 }
 
 struct CollisionObject {
-    explicit CollisionObject(const std::string& name) {
-        shape = gl::Graphics::getShape(name);
-        transform = std::make_shared<Transform>();
-        material = gl::defaultMaterial;
-    }
-
-    explicit CollisionObject(gl::DrawShape* shape) : shape(shape) {
-        transform = std::make_shared<Transform>();
-        material = gl::defaultMaterial;
-    }
-
-    void setColor(const glm::vec3 color) {
-        material.diffuse = color;
-        material.ambient = color;
-        material.specular = color;
-    }
-
-    bool isColliding() {
-        for (const auto& [i, mtv] : mtv_map) {
-            if (mtv.collision) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    explicit CollisionObject(const std::string& name);
+    explicit CollisionObject(gl::DrawShape* shape);
+    void setColor(const glm::vec3 color);
+    bool isColliding();
     std::unordered_map<size_t, MTV> mtv_map;
     Collider* collider = nullptr;
     const gl::DrawShape* shape;
@@ -68,7 +46,6 @@ public:
     int getSelectedObjectIndex() const { return m_selected_object_index; }
     void setSelectedObjectIndex(int index) { m_selected_object_index = index; }
     void selectedObjectGui(int index);
-    bool& getShowGrid() { return m_show_grid; }
     void collisionGui();
 
     // GUI popup to add new object
@@ -77,7 +54,7 @@ public:
 
 private:
     void controller();
-    void drawDebugGrid();
+
     void drawSelectionIndicators();
     void removeObject(int index);
     void clearObjects();
@@ -93,7 +70,5 @@ private:
     std::vector<glm::vec3> convex_vertices;
     std::array<glm::vec3, 3> triangle_vertices;
     // Grid settings
-    bool m_show_grid = true;
-    const float m_grid_size = 10.0f;  // Grid extends from -10 to +10
-    const float m_cell_size = 1.0f;   // 1 unit per cell
+
 };
