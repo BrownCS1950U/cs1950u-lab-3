@@ -11,8 +11,9 @@ enum ColliderType {
     BOX,
     CYLINDER,
     SPHERE,
-    CONVEXHULL,
-    TRIANGLE
+    CONE, // GJK
+    CONVEXHULL, // GJK
+    TRIANGLE // GJK
 };
 
 struct MTV {

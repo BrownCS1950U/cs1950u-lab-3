@@ -1,4 +1,5 @@
 #pragma once
+#include "collision/ConeCollider.h"
 
 class TriangleCollider;
 class ConvexCollider;
@@ -22,6 +23,7 @@ public:
     static glm::vec3 getBoxSupportPoint(const BoxCollider* box, const glm::vec3& direction);
     static glm::vec3 getCylinderSupportPoint(const CylinderCollider* cylinder, const glm::vec3& direction);
     static glm::vec3 getSphereSupportPoint(const SphereCollider* sphere, const glm::vec3& direction);
+    static glm::vec3 getConeSupportPoint(const ConeCollider* cone, const glm::vec3& direction);
     static glm::vec3 getConvexSupportPoint(const ConvexCollider* convex, const glm::vec3& direction);
     static glm::vec3 getTriangleSupportPoint(const TriangleCollider* triangle, const glm::vec3& direction);
 };

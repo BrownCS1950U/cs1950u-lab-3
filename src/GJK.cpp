@@ -35,6 +35,11 @@ glm::vec3 GJK::getSphereSupportPoint(const SphereCollider* sphere, const glm::ve
     return {};
 }
 
+glm::vec3 GJK::getConeSupportPoint(const ConeCollider* cone, const glm::vec3& direction) {
+    // TODO
+    return {};
+}
+
 glm::vec3 GJK::getConvexSupportPoint(const ConvexCollider* convex, const glm::vec3& direction) {
     // TODO
     auto points = convex->getPoints();
