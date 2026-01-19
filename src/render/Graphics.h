@@ -1,5 +1,6 @@
 #pragma once
-#include "Texture.h"
+
+#include "Mesh.h"
 #include "../Transform.h"
 
 
@@ -8,26 +9,9 @@ namespace gl {
     class Camera;
     class ShaderProgram;
 
-    struct DrawShape {
-        GLuint vao = 0;
-        GLuint vbo = 0; // vertex buffer id
-        GLuint ebo = 0; // element buffer id (for indexed rendering)
-        size_t numTriangles = 0;
-        glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
-        glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
-    };
 
 
-    struct DrawObject {
-        DrawShape shape;
-        DrawMaterial material = defaultMaterial;
-    };
 
-    struct DrawMesh {
-        std::vector<DrawObject> objects;
-        glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
-        glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
-    };
 
     struct Light {
         glm::vec3 position = glm::vec3(0,0,0);
@@ -59,9 +43,6 @@ namespace gl {
     private:
         static void initializePhongShader();
         static void setMaterialUniforms(const DrawMaterial& material);
-        static void bindMaterialTextures(const Textures& textures);
-        static void bindTexture(GLuint texture, int unit, const char* uniform_name);
-
 
         static std::unordered_map<std::string, DrawShape> shapes_;
 

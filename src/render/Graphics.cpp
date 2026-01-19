@@ -119,7 +119,7 @@ namespace gl {
         phong_ = Shaders::createShaderProgram(phong_vert,frag);//ShaderProgram(vert, frag);
 
         const auto skinned_vert = "Resources/Shaders/skinned_vert.glsl";
-        skinned_ = Shaders::createShaderProgram(skinned_vert,phong_.getFragmentID());
+        // skinned_ = Shaders::createShaderProgram(skinned_vert,phong_.getFragmentID());
 
         active_shader_= &phong_;
     }
@@ -130,29 +130,8 @@ namespace gl {
         active_shader_->setVec3("specular", material.specular);
         active_shader_->setFloat("shininess", material.shininess);
         active_shader_->setFloat("opacity", material.opacity);
-        bindMaterialTextures(material.textures);
     }
 
-    void Graphics::bindMaterialTextures(const Textures& textures) {
-        active_shader_->setInt("texture_flags", textures.flags);
-
-        if (textures.ambient != 0) {
-            bindTexture(textures.ambient, 0, "texture_ambient");
-        }
-        if (textures.diffuse != 0) {
-            bindTexture(textures.diffuse, 1, "texture_diffuse");
-        }
-        if (textures.specular != 0) {
-            bindTexture(textures.specular, 2, "texture_specular");
-        }
-
-    }
-
-    void Graphics::bindTexture(const GLuint texture, const int unit, const char* uniform_name) {
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        active_shader_->setInt(uniform_name, unit); // sampler2D bound by binding the texture unit to the uniform
-    }
 
     void Graphics::drawLine3D(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color, float width) {
         // Create line vertices
