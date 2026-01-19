@@ -8,7 +8,7 @@
 #include <sstream>
 
 #include "../render/Graphics.h"
-#include "../Core.h"
+#include "Core.h"
 #include "imgui_internal.h"
 #include "UI.h"
 #include "backends/imgui_impl_glfw.h"

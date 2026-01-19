@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "../core/Debug.h"
-#include "../core/Util.h"
+#include "../core/File.h"
 
 namespace gl {
 
@@ -67,8 +67,8 @@ namespace gl {
      * @return ShaderProgram struct containing the program ID and an empty map of uniform locations
      */
     ShaderProgram Shaders::createShaderProgram(const char* vertex_path, const char* fragment_path) {
-        const auto full_vert_path = util::getPath(vertex_path); // Get full path of the file
-        const auto full_frag_path = util::getPath(fragment_path);
+        const auto full_vert_path = file::getPath(vertex_path); // Get full path of the file
+        const auto full_frag_path = file::getPath(fragment_path);
 
         const auto vertex_shader = initializeShader(GL_VERTEX_SHADER, full_vert_path.c_str());
         const auto fragment_shader = initializeShader(GL_FRAGMENT_SHADER, full_frag_path.c_str());
@@ -79,7 +79,7 @@ namespace gl {
     }
 
     ShaderProgram Shaders::createShaderProgram(const char* vertex_path, const GLuint fragment_program_id) {
-        const auto full_vert_path = util::getPath(vertex_path); // Get full path of the file
+        const auto full_vert_path = file::getPath(vertex_path); // Get full path of the file
 
         const auto vertex_shader = initializeShader(GL_VERTEX_SHADER, full_vert_path.c_str());
 

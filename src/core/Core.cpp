@@ -3,23 +3,23 @@
 #include <iostream>
 
 #include <imgui.h>
-#include "Collider.h"
-#include "GJK.h"
-#include "collision/BoxCollider.h"
-#include "collision/ConvexCollider.h"
-#include "collision/CylinderCollider.h"
-#include "collision/SphereCollider.h"
-#include "collision/TriangleCollider.h"
-#include "core/Visuals.h"
-#include "core/Window.h"
+#include "../Collider.h"
+#include "../GJK.h"
+#include "../collision/BoxCollider.h"
+#include "../collision/ConvexCollider.h"
+#include "../collision/CylinderCollider.h"
+#include "../collision/SphereCollider.h"
+#include "../collision/TriangleCollider.h"
+#include "Visuals.h"
+#include "Window.h"
 
-#include "render/Camera.h"
-#include "render/Mesh.h"
-#include "render/shapes/Cone.h"
-#include "render/shapes/Cube.h"
-#include "render/shapes/Cylinder.h"
-#include "render/shapes/Quad.h"
-#include "render/shapes/Sphere.h"
+#include "../render/Camera.h"
+#include "../render/Mesh.h"
+#include "../render/shapes/Cone.h"
+#include "../render/shapes/Cube.h"
+#include "../render/shapes/Cylinder.h"
+#include "../render/shapes/Quad.h"
+#include "../render/shapes/Sphere.h"
 
 
 

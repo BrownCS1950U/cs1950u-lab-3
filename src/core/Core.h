@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
-#include "Collider.h"
-#include "render/Graphics.h"
+#include "../Collider.h"
+#include "../render/Graphics.h"
 
 class Collider;
 

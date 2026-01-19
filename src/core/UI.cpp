@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include "UI.h"
 
-#include "../Core.h"
+#include "Core.h"
 #include "Window.h"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
