@@ -1,6 +1,6 @@
 #include "Mesh.h"
 #include "Graphics.h"
-#include "../core/Util.h"
+#include "../core/File.h"
 #include "../core/Debug.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -8,7 +8,6 @@
 #include <stb_image.h>
 
 #include "Primitive.h"
-#include "Texture.h"
 
 
 namespace gl {
@@ -87,15 +86,13 @@ namespace gl {
      * @return DrawMesh struct containing the loaded mesh data
      */
     DrawMesh Mesh::loadStaticMesh(const char* filename) {
-        auto directory = util::getDirectory(filename);
+        auto directory = file::getDirectory(filename);
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(util::getPath(filename), IMPORT_PRESET);
+        const aiScene* scene = importer.ReadFile(file::getPath(filename), IMPORT_PRESET);
 
         DrawMesh mesh;
         glm::vec3 min(std::numeric_limits<float>::max());
         glm::vec3 max(std::numeric_limits<float>::lowest());
-
-        auto materials = Texture::loadSceneMaterials(scene, directory);
 
         for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
             const aiMesh* aimesh = scene->mMeshes[i];
@@ -140,12 +137,9 @@ namespace gl {
                 }
             }
 
-            auto material_name = util::aiToString(scene->mMaterials[aimesh->mMaterialIndex]->GetName());
-
-
             DrawObject object;
             object.shape = loadStaticShapeIndexed(vertices, indices); // Use indexed loading
-            object.material = materials[material_name];
+            object.material = defaultMaterial;
             mesh.objects.push_back(object);
             min = glm::min(min, object.shape.min);
             max = glm::max(max, object.shape.max);
@@ -157,9 +151,9 @@ namespace gl {
     }
 
     std::vector<glm::vec3> Mesh::loadVertices(const char* filename) {
-        auto directory = util::getDirectory(filename);
+        auto directory = file::getDirectory(filename);
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(util::getPath(filename), IMPORT_PRESET);
+        const aiScene* scene = importer.ReadFile(file::getPath(filename), IMPORT_PRESET);
 
         std::vector<glm::vec3> vertices;
 
