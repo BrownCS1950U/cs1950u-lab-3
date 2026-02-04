@@ -114,12 +114,9 @@ namespace gl {
     }
 
     void Graphics::initializePhongShader() {
-        const auto frag = "Resources/Shaders/phong_frag.glsl";
-        const auto phong_vert = "Resources/Shaders/phong_vert.glsl";
-        phong_ = Shaders::createShaderProgram(phong_vert,frag);//ShaderProgram(vert, frag);
-
-        const auto skinned_vert = "Resources/Shaders/skinned_vert.glsl";
-        // skinned_ = Shaders::createShaderProgram(skinned_vert,phong_.getFragmentID());
+        const auto frag = "resources/Shaders/phong_frag.glsl";
+        const auto phong_vert = "resources/Shaders/phong_vert.glsl";
+        phong_ = Shaders::createShaderProgram(phong_vert,frag);
 
         active_shader_= &phong_;
     }
