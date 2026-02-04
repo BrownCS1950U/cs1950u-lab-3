@@ -28,10 +28,6 @@ uniform vec3 camera_pos;
 
 uniform vec3 ambient_light;
 
-// Texture flags (bitwise)
-const int TEXTURE_FLAG_AMBIENT  = 0x1;  // Bit 0
-const int TEXTURE_FLAG_DIFFUSE  = 0x2;  // Bit 1
-const int TEXTURE_FLAG_SPECULAR = 0x4;  // Bit 2
 
 
 void main() {
@@ -40,23 +36,7 @@ void main() {
     vec3 viewDir = normalize(camera_pos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    // Determine which textures are present using bitwise operators
-    bool has_ambient_tex = bool(texture_flags & TEXTURE_FLAG_AMBIENT);
-    bool has_diffuse_tex = bool(texture_flags & TEXTURE_FLAG_DIFFUSE);
-    bool has_specular_tex = bool(texture_flags & TEXTURE_FLAG_SPECULAR);
-
     // Get material colors from textures or fallback to vertex colors
-    vec3 ambient = has_ambient_tex
-    ? ambient * texture(texture_ambient, TexCoord).rgb
-    : ambient;
-
-    vec3 diffuse = has_diffuse_tex
-    ? diffuse * texture(texture_diffuse, TexCoord).rgb
-    : diffuse;
-
-    vec3 specular = has_specular_tex
-    ? specular * texture(texture_specular, TexCoord).rgb
-    : specular;
 
     // Ambient component
     vec3 ambientResult = diffuse * ambient_light;
