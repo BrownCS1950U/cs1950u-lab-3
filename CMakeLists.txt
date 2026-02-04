@@ -15,7 +15,7 @@ add_executable(${PROJECT_NAME} main.cpp ${SOURCE_FILES})
 set(DEP_GLFW ON "Build GLFW")
 set(DEP_GLM ON "Build GLM")
 set(DEP_GLEW ON "Build GLEW")
-set(DEP_FREETYPE ON "Build FreeType")
+#set(DEP_FREETYPE ON "Build FreeType")
 set(DEP_STB ON "Include STB headers")
 set(DEP_IMGUI ON "Build Dear ImGui")
 set(DEP_ASSIMP ON "Build ASSIMP")
@@ -24,14 +24,14 @@ set(DEP_IMGUIZMO ON)
 # ImGui options
 set(DEP_IMGUI_BACKEND_GLFW ON "ImGui GLFW backend")
 set(DEP_IMGUI_BACKEND_OPENGL3 ON "ImGui OpenGL3 backend")
-set(DEP_IMGUI_FREETYPE ON "ImGui FreeType support")
+#set(DEP_IMGUI_FREETYPE ON "ImGui FreeType support")
 
 # Assimp options - only build OBJ importer
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
 
-set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies")
+set(DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
 add_subdirectory(${DEPENDENCIES_DIR} External EXCLUDE_FROM_ALL)
 
 

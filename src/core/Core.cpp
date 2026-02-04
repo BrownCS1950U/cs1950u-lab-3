@@ -1,6 +1,7 @@
 #include "Core.h"
 
 #include <iostream>
+#include <chrono>
 
 #include <imgui.h>
 #include "../Collider.h"
@@ -136,6 +137,14 @@ void Core::selectedObjectGui(int index) {
     }
 }
 
+static long long total_collision_time = 0;
+static int total_collision_checks = 0;
+
+// Display values (updated once per second)
+static long long display_collision_time = 0;
+static int display_collision_checks = 0;
+static auto last_update_time = std::chrono::high_resolution_clock::now();
+
 void Core::collisionGui() {
 
 
@@ -143,6 +152,7 @@ void Core::collisionGui() {
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Overrides the basic primitive collision functions with your GJK implementation.");
     }
+    ImGui::Separator();
     for (size_t i = 0; i < m_shapes.size(); i++) {
         auto& obj = m_shapes[i];
         if (obj.collider) {
@@ -166,6 +176,24 @@ void Core::collisionGui() {
         }
         ImGui::Separator();
     }
+
+    ImGui::Text("Performance Metrics:");
+
+    // Update display values once per second
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update_time).count();
+    if (elapsed >= 1000) { // 1000ms = 1 second
+        display_collision_time = total_collision_time;
+        display_collision_checks = total_collision_checks;
+        last_update_time = now;
+    }
+
+    ImGui::BulletText("Collision checks: %d", display_collision_checks);
+    ImGui::BulletText("Runtime: %lld nanoseconds (%.3f microseconds)",
+                      display_collision_time,
+                      display_collision_time / 1000.0);
+
+
 }
 
 void Core::addObjectGui() {
@@ -255,23 +283,39 @@ void Core::clearObjects() {
     m_selected_object_index = -1;
 }
 
+
 void Core::updateCollisions() {
+    // START TIMING - Mark the start point
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Reset operation counter
+    total_collision_checks = 0;
+
     for (size_t i = 0; i < m_shapes.size(); i++) {
         auto& obj = m_shapes[i];
         for (size_t j = i; j < m_shapes.size(); j++) {
             if (i == j) continue;
+
             if (auto& other = m_shapes[j]; obj.collider && other.collider) {
+                // Increment operation counter
+                total_collision_checks++;
+
                 MTV mtv;
                 if (Collider::gjk_mode) {
                     mtv = GJK::getMTV(obj.collider, other.collider);
                 } else {
                     mtv = obj.collider->getMTV(other.collider);
                 }
+
                 obj.mtv_map[j] = mtv;
                 other.mtv_map[i] = mtv.invert();
             }
         }
     }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    // Use nanoseconds for higher resolution
+    total_collision_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
 void Core::resolveCollision(int index) {

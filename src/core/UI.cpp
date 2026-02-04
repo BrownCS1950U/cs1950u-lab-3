@@ -77,7 +77,6 @@ void UI::update() {
     ImGui::SeparatorText("Collision info");
 
     m_core->collisionGui();
-
     if (selectedIndex == -1) {
         ImGui::Text("No object selected");
     } else {
